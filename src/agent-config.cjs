@@ -22,9 +22,10 @@ function createAgentConfig(store,fetchImpl,github){
   }
   const settings=()=>store.get('securityAgents',{profiles:defaults(),completedAt:null,revision:1});
   const profile=id=>{const p=settings().profiles.find(p=>p.id===id);if(!p)fail('NOT_FOUND','Agent inconnu.',404);return p;};
-  const key=id=>profile(id).credential==='shared'?store.secret('provider'):store.secret('agent:'+id);
+  const sharedCompatible=id=>{const p=profile(id),global=store.config().provider;return p.credential!=='shared'||(p.provider.kind===global.kind&&p.provider.baseUrl===global.baseUrl);};
+  const key=id=>profile(id).credential==='shared'?(sharedCompatible(id)?store.secret('provider'):''):store.secret('agent:'+id);
   const adapters=new Map(ROLES.map(r=>[r.id,createProviders(store,fetchImpl,{config:()=>profile(r.id).provider,key:()=>key(r.id),testKey:'agentTest:'+r.id})]));
-  for(const [id,a] of adapters){const ownVerified=a.verified;a.verified=()=>ownVerified()||(profile(id).credential==='shared'&&store.get('providerTest')?.fingerprint===a.fingerprint());}
+  for(const [id,a] of adapters){const ownVerified=a.verified;a.verified=()=>sharedCompatible(id)&&(ownVerified()||(profile(id).credential==='shared'&&store.get('providerTest')?.fingerprint===a.fingerprint()));}
   const adapter=id=>{profile(id);return adapters.get(id);};
   const repositoryFingerprint=()=>hash(JSON.stringify({repositories:store.config().repositories.map(r=>r.toLowerCase()).sort(),github:store.config().github})+store.secret('github')+store.secret('githubAppKey'));
   const repositoriesVerified=()=>store.get('securityRepositoryTest')?.fingerprint===repositoryFingerprint();

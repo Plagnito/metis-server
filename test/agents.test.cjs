@@ -79,3 +79,12 @@ test('Existing automatic routines are paused once when upgrading to agent onboar
   const second=createApp({dataDir:x.app.store.dir,fetchImpl:upstream.fetchImpl,scheduler:false});
   assert.equal(second.agents.ready(),false);assert.ok(second.scheduler.routines().every(r=>!r.enabled));second.store.close();
 });
+test('A shared credential cannot be sent to an old provider after the general endpoint changes',async t=>{
+  const upstream=fakeUpstreams(),x=await instance(t,{fetchImpl:upstream.fetchImpl});await prepare(x);
+  x.app.store.secret('provider','shared-fixture-key');const settings=x.app.agents.settings();settings.profiles[0].credential='shared';
+  x.app.agents.save({profiles:settings.profiles,expected_revision:settings.revision},'test');await x.app.agents.adapter('auditeur').test(AbortSignal.timeout(5000));
+  const config=x.app.store.config();config.provider={kind:'compatible',model:'new-global-model',baseUrl:'https://different.example/v1'};
+  x.app.store.set('config',config);x.app.store.secret('provider','new-provider-fixture-key');
+  const before=upstream.seen.length;await assert.rejects(x.app.agents.adapter('auditeur').test(AbortSignal.timeout(5000)),{code:'PROVIDER_NOT_CONFIGURED'});
+  assert.equal(upstream.seen.length,before);assert.equal(x.app.agents.adapter('auditeur').verified(),false);
+});
