@@ -31,7 +31,7 @@ const files = [];
 function walk(dir, relative = "") {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const name = relative ? relative + "/" + e.name : e.name;
-    if (!relative && e.name === ".git") continue;
+    if (!relative && [".git","node_modules"].includes(e.name)) continue;
     if (!relative && !topFiles.has(e.name) && !directories.has(e.name))
       throw new Error(
         "Fichier ou dossier non prévu dans la distribution : " + name,

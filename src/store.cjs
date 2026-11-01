@@ -4,7 +4,10 @@ const path = require("node:path");
 const crypto = require("node:crypto");
 const { DatabaseSync } = require("node:sqlite");
 const { fail, object, text, int, repo, token, hash } = require("./util.cjs");
+const { DEFAULT_CATEGORIES, DEFAULT_SECURITY_CATEGORIES, validateCategories, validateSecurityCategories, categories, resolveCategory } = require("./categories.cjs");
 const DEFAULTS = {
+  categories: DEFAULT_CATEGORIES,
+  securityCategories: DEFAULT_SECURITY_CATEGORIES,
   name: "Métis",
   timezone: "Europe/Paris",
   baseUrl: "",
@@ -21,9 +24,11 @@ function validateConfig(input) {
     "modules",
     "repositories",
     "github",
-    "provider",
+    "provider", "categories", "securityCategories",
   ]);
   const c = structuredClone(input);
+  c.categories = validateCategories(c.categories || DEFAULT_CATEGORIES);
+  c.securityCategories = validateSecurityCategories(c.securityCategories || DEFAULT_SECURITY_CATEGORIES);
   c.name = text(c.name, "Nom", 80);
   c.timezone = text(c.timezone, "Fuseau", 80);
   try {
@@ -155,6 +160,14 @@ function openStore(directory) {
     CREATE TABLE IF NOT EXISTS mutations(key TEXT PRIMARY KEY,digest TEXT NOT NULL,result TEXT NOT NULL,created INTEGER NOT NULL);
     CREATE INDEX IF NOT EXISTS jobs_state ON jobs(state,created);
     PRAGMA user_version=1;`);
+  const docColumns = new Set(db.prepare("PRAGMA table_info(documents)").all().map(c=>c.name));
+  for (const [name,definition] of [["category_id","TEXT NOT NULL DEFAULT 'research'"],["summary","TEXT NOT NULL DEFAULT ''"],["tags","TEXT NOT NULL DEFAULT '[]'"],["author","TEXT NOT NULL DEFAULT 'Administrateur'"],["created","TEXT NOT NULL DEFAULT ''"]]) {
+    if(!docColumns.has(name)) db.exec("ALTER TABLE documents ADD COLUMN "+name+" "+definition);
+  }
+  const versionColumns = new Set(db.prepare("PRAGMA table_info(document_versions)").all().map(c=>c.name));
+  for (const [name,definition] of [["category_id","TEXT NOT NULL DEFAULT 'research'"],["category_name","TEXT NOT NULL DEFAULT 'Recherche'"],["summary","TEXT NOT NULL DEFAULT ''"],["tags","TEXT NOT NULL DEFAULT '[]'"]]) {
+    if(!versionColumns.has(name)) db.exec("ALTER TABLE document_versions ADD COLUMN "+name+" "+definition);
+  }
   const get = (k, fallback = null) => {
     const row = db.prepare("SELECT value FROM settings WHERE key=?").get(k);
     return row ? JSON.parse(row.value) : fallback;
@@ -166,6 +179,9 @@ function openStore(directory) {
       )
       .run(k, JSON.stringify(v));
   if (!get("config")) set("config", DEFAULTS);
+  if(!get("config").categories) set("config", {...get("config"),categories:structuredClone(DEFAULT_CATEGORIES)});
+  if(!get("config").securityCategories) set("config", {...get("config"),securityCategories:structuredClone(DEFAULT_SECURITY_CATEGORIES)});
+  const config = () => ({...get("config"),categories:categories(get("config"))});
   if (
     !db.prepare("SELECT 1 FROM admin").get() &&
     !fs.existsSync(path.join(dir, ".bootstrap_token"))
@@ -256,7 +272,7 @@ function openStore(directory) {
     });
   }
   function saveDocument(input, actor) {
-    object(input, ["slug", "title", "body", "status", "expected_version"]);
+    object(input, ["slug", "title", "body", "status", "expected_version", "category", "category_id", "summary", "tags"]);
     const slug = text(input.slug, "Identifiant", 80);
     if (!/^[a-z0-9][a-z0-9-]*$/.test(slug))
       fail(
@@ -270,7 +286,7 @@ function openStore(directory) {
       fail("INVALID_ARGUMENT", "Statut invalide.");
     int(input.expected_version, "Version attendue", 0, 1e9);
     const prior = db
-      .prepare("SELECT version FROM documents WHERE slug=?")
+      .prepare("SELECT version,category_id,summary,tags,created FROM documents WHERE slug=?")
       .get(slug);
     if ((prior?.version || 0) !== input.expected_version)
       fail(
@@ -280,10 +296,14 @@ function openStore(directory) {
       );
     const version = input.expected_version + 1,
       at = new Date().toISOString();
+    const category = resolveCategory(config(), input.category_id || input.category || prior?.category_id);
+    const summary = input.summary === undefined ? prior?.summary || "" : text(input.summary,"Résumé",600,0);
+    const tags = input.tags === undefined ? JSON.parse(prior?.tags || "[]") : input.tags;
+    if(!Array.isArray(tags) || tags.length>8 || tags.some(t=>typeof t!=="string" || t.length>30)) fail("INVALID_ARGUMENT","Étiquettes invalides.");
     db.prepare(
-      "INSERT INTO documents VALUES(?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET title=excluded.title,body=excluded.body,status=excluded.status,version=excluded.version,updated=excluded.updated",
-    ).run(slug, title, body, status, version, at);
-    db.prepare("INSERT INTO document_versions VALUES(?,?,?,?,?,?,?)").run(
+      "INSERT INTO documents(slug,title,body,status,version,updated,category_id,summary,tags,author,created) VALUES(?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(slug) DO UPDATE SET title=excluded.title,body=excluded.body,status=excluded.status,version=excluded.version,updated=excluded.updated,category_id=excluded.category_id,summary=excluded.summary,tags=excluded.tags,author=excluded.author",
+    ).run(slug, title, body, status, version, at,category.id,summary,JSON.stringify(tags),String(actor),prior?.created || at);
+    db.prepare("INSERT INTO document_versions(slug,version,title,body,status,at,actor,category_id,category_name,summary,tags) VALUES(?,?,?,?,?,?,?,?,?,?,?)").run(
       slug,
       version,
       title,
@@ -291,9 +311,27 @@ function openStore(directory) {
       status,
       at,
       actor,
+      category.id,category.name,summary,JSON.stringify(tags),
     );
     log(actor, "document.save", slug);
-    return { slug, title, body, status, version, updated: at };
+    return { slug, title, body, status, version, updated: at, category_id:category.id,category:category.name,summary,tags };
+  }
+  function checkCategoryUse(next) {
+    const ids = new Set(next.map(c=>c.id));
+    for (const row of db.prepare("SELECT DISTINCT category_id FROM documents").all())
+      if (!ids.has(row.category_id)) fail("CATEGORY_IN_USE", "Cette catégorie contient des documents. Déplacez-les avant de la retirer.", 409);
+  }
+  function saveCategories(value, expectedRevision, actor, securityValue = config().securityCategories) {
+    const next = validateCategories(value);
+    const nextSecurity = validateSecurityCategories(securityValue);
+    transaction(()=>{
+      if(get("configRevision",1)!==expectedRevision)fail("REVISION_CONFLICT","La configuration a changé. Rechargez la page.",409);
+      checkCategoryUse(next);
+      set("config",{...config(),categories:next,securityCategories:nextSecurity});
+      set("configRevision",expectedRevision+1);
+      log(actor,"categories.save");
+    });
+    return next;
   }
   function saveWork(input, actor) {
     object(input, ["id", "title", "description", "status", "expected_version"]);
@@ -327,8 +365,10 @@ function openStore(directory) {
     transaction,
     mutation,
     saveDocument,
+    saveCategories,
+    checkCategoryUse,
     saveWork,
-    config: () => get("config"),
+    config,
     close: () => db.close(),
   };
 }

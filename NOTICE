@@ -7,6 +7,12 @@ repository, revision 227e897b68fbbaf2d6436084526519bf28ededf8.
 They were extracted with standalone storage, identity, repository selection,
 credentials and timezone configuration. No Atlas data or Git history is bundled.
 
+The original server-rendered publications, glossary, expert registry, SVG charts,
+connector dashboard and Security Center interface in src/native are adapted from
+the same revision. The original Security Center CSS and browser script are retained.
+Identity, local persistence, URLs, CSRF and configurable category labels are adapted
+for independent instances. No private Atlas publication or expert seeds are bundled.
+
 This distribution is licensed under GNU AGPL version 3 only, as authorized
 by the project owner. See LICENSE for the full license text.
 

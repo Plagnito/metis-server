@@ -312,10 +312,14 @@ function createSecurity({ db, config, githubToken, githubFetch = fetch }) {
   }
 
   // ── Inventaire des dépôts ────────────────────────────────────────────────────
-  function familleDe() {
-    return "depots";
+  function familleDe(proprietaire, nom) {
+    if (/^(atlas|metis)(?:[-_]|$)/i.test(nom || "")) return "ecosysteme";
+    return /^random-/i.test(nom || "") ? "random" : "apps";
   }
-  const LIBELLE_FAMILLE = { depots: "Dépôts sélectionnés" };
+  const LIBELLE_FAMILLE = Object.defineProperties({}, Object.fromEntries(
+    [{id:"ecosysteme",name:"Écosystème Atlas"},{id:"apps",name:"Apps et outils"},{id:"random",name:"Collection random"}]
+      .map(c=>[c.id,{enumerable:true,get:()=>config().securityCategories?.find(n=>n.id===c.id)?.name||c.name}])
+  ));
 
   /** Retrouve un dépôt par « nom » ou « Compte/nom ». Refuse une ambiguïté. */
   function resoudreDepot(saisie) {

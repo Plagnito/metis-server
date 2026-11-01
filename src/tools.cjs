@@ -2,6 +2,7 @@
 const crypto = require("node:crypto");
 const { fail, object, text, int, schemaCheck } = require("./util.cjs");
 const { createSecurityTools } = require("./security-tools.cjs");
+const { resolveCategory } = require("./categories.cjs");
 const obj = (properties, required = []) => ({
   type: "object",
   additionalProperties: false,
@@ -42,6 +43,7 @@ function createTools(store, security, scheduler) {
         scopes: actor.scopes,
         static_analysis: true,
         code_execution: false,
+        categories: store.config().categories,
       }),
     ],
     [
@@ -63,17 +65,15 @@ function createTools(store, security, scheduler) {
       "lister_documents",
       "Lister les documents",
       "Liste paginée des documents et de leur version actuelle.",
-      obj({ limit: integer(1, 100), offset: integer(0, 100000) }),
+      obj({ limit: integer(1, 100), offset: integer(0, 100000), categorie: str(80) }),
       "metis:read",
       read,
-      (a) => ({
-        documents: db
-          .prepare(
-            "SELECT slug,title,status,version,updated FROM documents ORDER BY updated DESC LIMIT ? OFFSET ?",
-          )
-          .all(a.limit || 30, a.offset || 0),
-        total: db.prepare("SELECT COUNT(*) n FROM documents").get().n,
-      }),
+      (a) => {
+        const category=a.categorie?resolveCategory(store.config(),a.categorie).id:"";
+        return {documents:db.prepare("SELECT slug FROM documents WHERE (?='' OR category_id=?) ORDER BY updated DESC LIMIT ? OFFSET ?")
+          .all(category,category,a.limit||30,a.offset||0).map(d=>{const {body,...metadata}=document(d.slug);return metadata;}),
+          total:db.prepare("SELECT COUNT(*) n FROM documents WHERE (?='' OR category_id=?)").get(category,category).n};
+      },
     ],
     [
       "fetch",
@@ -134,6 +134,9 @@ function createTools(store, security, scheduler) {
           slug: str(80),
           titre: str(160),
           corps: str(400000),
+          categorie: str(80),
+          chapo: str(600),
+          etiquettes: {type:"array",maxItems:8,items:str(30)},
           statut: { type: "string", enum: ["draft", "published"] },
           idempotency_key: str(160),
         },
@@ -150,6 +153,9 @@ function createTools(store, security, scheduler) {
               body: a.corps,
               status: a.statut || "draft",
               expected_version: 0,
+              category: a.categorie,
+              summary: a.chapo,
+              tags: a.etiquettes,
             },
             actor.id,
           ),
@@ -164,6 +170,9 @@ function createTools(store, security, scheduler) {
           slug: str(80),
           titre: str(160),
           corps: str(400000),
+          categorie: str(80),
+          chapo: str(600),
+          etiquettes: {type:"array",maxItems:8,items:str(30)},
           statut: { type: "string", enum: ["draft", "published", "archived"] },
           version_attendue: integer(1, 1e9),
           idempotency_key: str(160),
@@ -181,6 +190,9 @@ function createTools(store, security, scheduler) {
               body: a.corps,
               status: a.statut || "draft",
               expected_version: a.version_attendue,
+              category: a.categorie,
+              summary: a.chapo,
+              tags: a.etiquettes,
             },
             actor.id,
           ),
@@ -302,12 +314,13 @@ function createTools(store, security, scheduler) {
     let d = version
       ? db
           .prepare(
-            "SELECT slug,title,body,status,version,at AS updated FROM document_versions WHERE slug=? AND version=?",
+            "SELECT *,at AS updated FROM document_versions WHERE slug=? AND version=?",
           )
           .get(slug, version)
       : db.prepare("SELECT * FROM documents WHERE slug=?").get(slug);
     if (!d) fail("NOT_FOUND", "Document ou version introuvable.", 404);
-    return { ...d, content_trust: "untrusted_data" };
+    return { ...d, category:version?d.category_name:store.config().categories.find(c=>c.id===d.category_id)?.name,
+      tags:JSON.parse(d.tags||"[]"),content_trust: "untrusted_data" };
   }
   function allowed(actor, scope) {
     if (scope === "instance:read") return !!actor;

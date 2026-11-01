@@ -39,12 +39,19 @@ unprivileged user, with a read-only root filesystem and no Docker socket.
 Without Docker, install **Node.js 24 or newer** and run:
 
 ```sh
+npm ci --omit=dev --ignore-scripts
 npm start
 ```
 
-There are no npm runtime dependencies or frontend build steps. On Windows,
-`Start-Metis.cmd` starts the server in a terminal. The machine must remain on for
+The original Métis interface is rendered on the server using Express; no frontend
+build is needed. On Windows, `Start-Metis.cmd` installs the pinned dependencies
+on first launch and starts the server in a terminal. The machine must remain on for
 scheduled routines to run.
+
+Publications, glossary, experts, SVG charts and Security Center reuse the original
+Métis renderers. Open **Personaliser les catégories** in the sidebar to rename
+publication categories and the three Security Center groups. Renaming preserves
+document membership and history; the default labels and layout match the original.
 
 ## What you can do
 
@@ -77,7 +84,7 @@ preview does not bundle the full Atlas scientific registry, agent handoff system
 personal research corpus or Metis Lab installation. There is no automatic import
 of your Atlas database.
 
-![Dashboard with synthetic demonstration data](docs/images/dashboard.jpg)
+![Original Métis Security Center with synthetic demonstration data](docs/images/dashboard.png)
 
 One administrator owns an instance. Integration identities have separate read/write
 scopes. This is not a hosted service with independent customer tenants.

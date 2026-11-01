@@ -1,0 +1,29 @@
+/* Instance configuration uses the original Métis shell and its design tokens. */
+#app .page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin:32px 0}
+#app h1{font:500 clamp(30px,4vw,44px)/1.15 var(--serif);letter-spacing:-.03em;margin:8px 0 14px}
+#app h2,#dialog h2{font:500 25px/1.2 var(--serif);margin:0 0 20px}
+#app .eyebrow{font-size:11px;letter-spacing:.1em;color:var(--acc);font-weight:600}
+#app .muted,#app .fineprint{color:var(--texte2)}
+#app .fineprint{font-size:12px}#app .section{margin-top:24px}
+#app .card{display:block;background:var(--carte);border:1px solid var(--ligne);border-radius:10px;padding:24px;margin-bottom:18px}
+#app .form-width{max-width:900px}
+#app .form-row,#dialog .form-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+#app label,#dialog label{display:flex;flex-direction:column;gap:7px;margin-bottom:18px;font-size:13px;font-weight:500}
+#app input,#app textarea,#app select,#dialog input,#dialog textarea,#dialog select{font:400 14px/1.5 var(--police);width:100%;color:var(--texte);background:var(--fond);border:1px solid var(--ligne);border-radius:5px;padding:10px 12px}
+#app textarea,#dialog textarea{resize:vertical}#dialog .doc-body{min-height:300px;font-family:monospace}
+#app small,#dialog small{font-size:12px;color:var(--texte2);font-weight:400}
+#app button,#dialog button{font:500 13px var(--police);cursor:pointer;border:1px solid var(--acc);border-radius:6px;background:var(--acc);color:#fff;padding:10px 16px}
+#app button.secondary,#dialog button.secondary{color:var(--texte);border-color:var(--ligne);background:var(--carte)}
+#app button:disabled,#dialog button:disabled{opacity:.5;cursor:default}
+#app .checks{display:flex;gap:24px;flex-wrap:wrap}#app .checks label,#dialog .checks label{flex-direction:row;align-items:center}#app input[type=checkbox],#dialog input[type=checkbox]{width:auto}
+#app .actions,#dialog .actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#app .hint{padding:14px;border-left:2px solid var(--acc);font-size:13px;background:var(--survol);margin:20px 0}
+#app .badge{display:inline-block;padding:3px 8px;border:1px solid var(--ligne);border-radius:4px;font-size:11px;color:var(--texte2)}
+#app .code,#dialog pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;background:var(--survol);padding:12px;display:block;border-radius:5px}
+#app .empty{padding:36px;color:var(--texte2);border:1px dashed var(--ligne);font-size:14px}#app .empty strong{display:block;color:var(--texte);margin-bottom:8px}
+#app .table-wrap{overflow:auto}#app table{width:100%;border-collapse:collapse;font-size:13px}#app th,#app td{text-align:left;padding:12px;border-bottom:1px solid var(--ligne)}
+#app .list-row{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--ligne);padding:15px;gap:16px}
+#dialog{background:var(--carte);color:var(--texte);border:1px solid var(--ligne);border-radius:10px;padding:26px;max-width:860px;width:calc(100% - 40px);box-shadow:var(--ombre)}
+#dialog::backdrop{background:rgba(20,20,19,.4)}#dialog .dialog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+#notice{position:fixed;bottom:24px;right:24px;background:var(--texte);color:var(--fond);padding:12px 18px;z-index:100;border-radius:6px;font-size:13px;display:none}#notice.show{display:block}#notice.error{background:#a43b2e}
+@media(max-width:700px){#app .form-row,#dialog .form-row{grid-template-columns:1fr}#app .page-head{flex-direction:column}}

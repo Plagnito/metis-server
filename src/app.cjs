@@ -9,6 +9,7 @@ const { createGithub } = require("./github.cjs");
 const { createProviders } = require("./providers.cjs");
 const { createScheduler } = require("./scheduler.cjs");
 const { createTools } = require("./tools.cjs");
+const { createNative } = require("./native.cjs");
 const {
   fail,
   object,
@@ -25,6 +26,7 @@ const STATIC = new Map([
   ["/", ["index.html", "text/html; charset=utf-8"]],
   ["/app.js", ["app.js", "application/javascript; charset=utf-8"]],
   ["/style.css", ["style.css", "text/css; charset=utf-8"]],
+  ["/instance.css", ["instance.css", "text/css; charset=utf-8"]],
   ["/favicon.svg", ["favicon.svg", "image/svg+xml"]],
 ]);
 function createApp(options = {}) {
@@ -51,6 +53,16 @@ function createApp(options = {}) {
   const scheduler = createScheduler(store, security, github, providers),
     tools = createTools(store, security, scheduler);
   const oauth = createOAuth(store, auth, origin);
+  const native = createNative({store,auth,security,tools,origin,sameOrigin});
+  const rawToolCall = tools.call;
+  tools.call = async (name,args,actor) => {
+    const started=performance.now(); let result, failed=false;
+    try {result=await rawToolCall(name,args,actor);failed=!!result?.isError;return result;}
+    catch(error){failed=true;throw error;}
+    finally {if(actor)native.record({account:1,client:actor.client||actor.id,method:"tools/call",
+      tool:tools.list(actor).some(t=>t.name===name)?name:"unknown",status:failed?400:200,failed,
+      input_bytes:Buffer.byteLength(JSON.stringify(args)),output_bytes:result?Buffer.byteLength(JSON.stringify(result)):0,duration_ms:performance.now()-started});}
+  };
   function headers(res) {
     res.setHeader("Cache-Control", "no-store");
     res.setHeader("X-Content-Type-Options", "nosniff");
@@ -144,6 +156,14 @@ function createApp(options = {}) {
       if (!hostAllowed(req)) fail("HOST_DENIED", "Hôte non configuré.", 403);
       const u = new URL(req.url, origin()),
         p = u.pathname;
+      if (p === "/metis" || p.startsWith("/metis/") || p === "/icon.svg") {
+        native.handle(req,res);
+        return;
+      }
+      if(req.method === "GET" && p === "/instance") {
+        redirect(res,"/metis/instance");
+        return;
+      }
       if (req.method === "GET" && STATIC.has(p)) {
         const [f, type] = STATIC.get(p);
         res.writeHead(200, { "Content-Type": type });
@@ -451,7 +471,7 @@ function createApp(options = {}) {
         if (req.method === "POST" && p === "/api/config") {
           const input = await body(req);
           object(input, ["config", "expected_revision"]);
-          const config = validateConfig(input.config);
+          const config = validateConfig({...input.config,categories:input.config?.categories || store.config().categories,securityCategories:input.config?.securityCategories || store.config().securityCategories});
           store.transaction(() => {
             if (store.get("configRevision", 1) !== input.expected_revision)
               fail(
@@ -460,6 +480,7 @@ function createApp(options = {}) {
                 409,
               );
             const priorProvider = store.config().provider;
+            store.checkCategoryUse(config.categories);
             if (
               priorProvider.kind !== config.provider.kind ||
               priorProvider.baseUrl !== config.provider.baseUrl

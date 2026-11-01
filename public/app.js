@@ -163,6 +163,19 @@ const nav = [
 ];
 function render() {
   if (!state) return;
+  if(location.pathname === "/") {
+    const destination={security:"/metis/securite",documents:"/metis",connectors:"/metis/connecteur",overview:"/metis"}[location.hash.slice(1)];
+    const back=new URLSearchParams(location.search).get("return");
+    location.replace(back?.startsWith("/metis") ? back : destination || (location.hash ? "/metis/instance"+location.hash : "/metis"));
+    return;
+  }
+  if(location.pathname === "/metis/instance") {
+    page=location.hash.slice(1)||"settings";
+    const screens={settings,routines,connectors,documents,work};
+    if(!screens[page])page="settings";
+    root.innerHTML='<nav class="puces" aria-label="Réglages de l’instance">'+[["settings","Configuration"],["routines","Routines"],["connectors","Accès MCP"],["documents","Gérer les publications"],["work","Travaux"]].map(([id,label])=>'<a href="#'+id+'"'+(page===id?' class="on"':'')+'>'+label+'</a>').join('')+'<a href="/metis/categories">Catégories</a></nav>'+screens[page]();
+    return;
+  }
   page = location.hash.slice(1) || "overview";
   if (!nav.some((x) => x[0] === page)) page = "overview";
   const title = nav.find((x) => x[0] === page)[2];
@@ -508,7 +521,7 @@ function settings() {
       "Chez vous, selon vos choix.",
       "Les clés enregistrées ne sont jamais renvoyées à votre navigateur.",
     ) +
-    '<form id="settings-form" class="form-width"><section class="card"><h2>Votre instance</h2><div class="form-row"><label>Nom<input name="name" value="' +
+    '<p><a href="/metis/categories">Personnaliser le nom des catégories →</a></p><form id="settings-form" class="form-width"><section class="card"><h2>Votre instance</h2><div class="form-row"><label>Nom<input name="name" value="' +
     E(c.name) +
     '" maxlength="80" required></label><label>Fuseau horaire<input name="timezone" value="' +
     E(c.timezone) +
@@ -732,7 +745,7 @@ function documentForm(d) {
         .join("") +
       '</select></label></div><label>Titre<input name="title" value="' +
       E(d?.title || "") +
-      '" maxlength="160" required></label><label>Document Markdown<textarea class="doc-body" name="body" maxlength="400000">' +
+      '" maxlength="160" required></label><label>Catégorie<select name="category_id">'+state.config.categories.map(c=>'<option value="'+E(c.id)+'"'+(c.id===(d?.category_id||state.config.categories[0].id)?' selected':'')+'>'+E(c.name)+'</option>').join('')+'</select></label><label>Résumé<textarea name="summary" maxlength="600" rows="3">'+E(d?.summary||'')+'</textarea></label><label>Document Markdown<textarea class="doc-body" name="body" maxlength="400000">' +
       E(d?.body || "") +
       '</textarea></label><p class="fineprint">Chaque enregistrement crée une nouvelle version. Le texte est conservé sans exécuter son HTML.</p><button>Enregistrer</button></form>',
   );
@@ -801,6 +814,7 @@ async function submit(e) {
     }
     if (id === "settings-form") {
       const config = {
+        categories: state.config.categories,
         name: f.get("name"),
         timezone: f.get("timezone"),
         baseUrl: f.get("baseUrl"),

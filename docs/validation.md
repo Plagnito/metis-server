@@ -1,11 +1,11 @@
-# Initial preview validation
+# Preview validation — 0.1.0-beta.2
 
 Date: 1 November 2026.
 
 ## Verified locally
 
 - Node v26.12.1 on Windows.
-- 28 automated tests passing with disposable SQLite databases and simulated
+- 34 automated tests passing with disposable SQLite databases and simulated
   GitHub, OpenAI, Anthropic and compatible-provider responses.
 - HTTP bootstrap/login/CSRF, document version conflicts and replay keys.
 - MCP initialization, scoped discovery, denied writes and revocation.
@@ -21,6 +21,17 @@ Date: 1 November 2026.
   administrator persistence after restart.
 - Browser verification: navigation, document creation, routine creation in pause,
   configuration save and dashboard rendering on the local demonstration instance.
+- Original publication and Security Center CSS match the upstream revision
+  byte for byte. The Security Center browser script is unchanged. With the default
+  labels and the same state, the complete Security Center HTML matches the original
+  renderer (revision 227e897b68fbbaf2d6436084526519bf28ededf8).
+- Native publications, readers, glossary, experts, chart catalogue, connector
+  dashboard and configuration routes render with the local administrator session.
+- Category migration, renaming, stable membership/colours, historical names,
+  uniqueness, in-use removal protection, stale-save conflicts and MCP filtering.
+- Browser form submission verified for publication and Security Center category
+  names; original labels restored after testing. Native repository filters and
+  detail selection verified without browser errors.
 
 No private repository was sent to a provider and no real provider API call was
 made. The visual demonstration uses only synthetic data and mock services.

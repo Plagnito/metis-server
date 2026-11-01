@@ -3,6 +3,16 @@
 The web interface is the main configuration path. A fresh server has no selected
 repositories, no provider credentials and no enabled routines.
 
+## Categories
+
+In the sidebar, open **Personnaliser les catégories** (`/metis/categories`).
+Publication categories can be renamed, added and removed when empty. The three
+Security Center groups can be renamed. Changes require saving the form.
+Category identities remain stable, so renaming does not move documents, create
+document versions, or rewrite historical category names. Existing instances receive
+the original defaults automatically. The document editor and MCP `categorie`
+argument use the configured names; `capabilities` lists available categories.
+
 ## GitHub
 
 For a public repository, enter `owner/repository`, save, and test access. A token

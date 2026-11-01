@@ -1,6 +1,6 @@
 {
   "format": "metis-source-release-v1",
-  "version": "0.1.0-beta.1",
+  "version": "0.1.0-beta.2",
   "files": [
     {
       "path": ".dockerignore",
@@ -14,8 +14,8 @@
     },
     {
       "path": ".github/workflows/test.yml",
-      "bytes": 913,
-      "sha256": "aeb9bfb282def485a5f1745977a83162a1137c960ed1284ea1b22bbce9e74066"
+      "bytes": 950,
+      "sha256": "fcf14192f670569ac86c16bf6bcf657d9b08ba62e0adaf5a903cfb9a5758a98f"
     },
     {
       "path": ".gitignore",
@@ -29,8 +29,8 @@
     },
     {
       "path": "Dockerfile",
-      "bytes": 660,
-      "sha256": "0a107f4a53fb7736f389716564b0f74b88128e209dcf02904e7790755c80f642"
+      "bytes": 744,
+      "sha256": "b8d55b0617caa0678f182dee6562bf08d75f2d6b8c033e2bd22bbd8042fa4d4d"
     },
     {
       "path": "docs/backup.md",
@@ -39,18 +39,18 @@
     },
     {
       "path": "docs/configuration.md",
-      "bytes": 4346,
-      "sha256": "32215da6b91b6694a97d557d6ec2780c27bf0a8d4f531f7f520ed4d631eb5fd9"
+      "bytes": 4909,
+      "sha256": "16af26f86698b7521f76639ba679872ddc3705e0599fc871a44b796da3437b45"
     },
     {
-      "path": "docs/images/dashboard.jpg",
-      "bytes": 89955,
-      "sha256": "bff78e856898b852c71af10dfde197acb94ddff43965a55d6a8a43d25fcfecac"
+      "path": "docs/images/dashboard.png",
+      "bytes": 90118,
+      "sha256": "ded036edb3fbc1dee275ab9088251c4ee20fc56247c703cbfa7f4ae0cc55a9a9"
     },
     {
       "path": "docs/validation.md",
-      "bytes": 1946,
-      "sha256": "396e1e9ecd7a3c9b7c4e5493b080e4350b4bf9a71e992ba0b04af1b3827cefc8"
+      "bytes": 2790,
+      "sha256": "3b8eeb92f8d277d9b494105839bc2aa72c0cdaaf81a9c93b16df1b840213f954"
     },
     {
       "path": "LICENSE",
@@ -59,18 +59,28 @@
     },
     {
       "path": "NOTICE",
-      "bytes": 716,
-      "sha256": "52691b9bd72c4b8a8c17cc736709fb84ee5f27fafda13a799d703684c5a4217b"
+      "bytes": 1135,
+      "sha256": "1e95229e3750f242eefe8545c5c255c39017acdd806dafe58bb5ef846e286c05"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 29804,
+      "sha256": "5237972ae15f15d058580ae75d18ba21f6c8da737d4c157cfe18d95d2a04eddf"
     },
     {
       "path": "package.json",
-      "bytes": 544,
-      "sha256": "1626c51e07b345537e931543e26136e24ef384891a07e8b1f6d314a9e64c34da"
+      "bytes": 593,
+      "sha256": "fc2a7ab5626774225ca1da6c07bd9e5f51efb876987ea5326061d7e21b504a15"
     },
     {
       "path": "public/app.js",
-      "bytes": 42279,
-      "sha256": "a94ace99d78621964072ac50e26db665660dff630263aa56d75a2891133215cb"
+      "bytes": 43735,
+      "sha256": "475f987ac3deebbe25394bfc817f587e49b5661aba4c72900b0972f575c3279c"
+    },
+    {
+      "path": "public/categories.js",
+      "bytes": 1028,
+      "sha256": "d23bcba7a59a01322428ec63793daed6541d5b3a8fe7f94230bc779e4486c528"
     },
     {
       "path": "public/favicon.svg",
@@ -83,19 +93,24 @@
       "sha256": "6caa0623e5fa858dfcc760d058e3e4db974e1d8f51c3674bdbb5900e8e2bbb4d"
     },
     {
+      "path": "public/instance.css",
+      "bytes": 3524,
+      "sha256": "3917ff098b9ebc587de5229d7ab3a1ba5717baf7dc84c440950a15b1c31db7bf"
+    },
+    {
       "path": "public/style.css",
       "bytes": 12302,
       "sha256": "e242dd2e0d69e47e5005d9019ecc13c5e4a5c19ed71e62c37e4901e142957285"
     },
     {
       "path": "README.fr.md",
-      "bytes": 4924,
-      "sha256": "e1c5398cc98a03089243d23bdc1830f56eda972e7c763b37fb5b3d5769b132ae"
+      "bytes": 5368,
+      "sha256": "e581e669209e2cb5701e16c02a46ae85a881a5212aa186da8cdd5b30f4d8f856"
     },
     {
       "path": "README.md",
-      "bytes": 7339,
-      "sha256": "dffae6c4440d3da0a86d54f76310023577c17b2b8c6796d7ccd270ee0ba6e223"
+      "bytes": 7814,
+      "sha256": "073fdd18d972023799062f31fd0781e738491c1c64b0bd58f4aa55e3fb475c00"
     },
     {
       "path": "scripts/backup.cjs",
@@ -104,8 +119,8 @@
     },
     {
       "path": "scripts/check-release.cjs",
-      "bytes": 3227,
-      "sha256": "a24ac3e1cf1a9853d982bf173e306dd10c46248dd0d56ff3cf72132be503cb34"
+      "bytes": 3250,
+      "sha256": "44c65c1ba99f3ce880025cbf9f0e80f290a136152c0d5d43248495aca7efe14c"
     },
     {
       "path": "scripts/restore.cjs",
@@ -124,13 +139,18 @@
     },
     {
       "path": "src/app.cjs",
-      "bytes": 23454,
-      "sha256": "6ac04b60d37fbc32830a13e48c80016702237d1ec6aed8d4594d3d4347e37495"
+      "bytes": 24753,
+      "sha256": "adc995dee327ebc4ffcefc48d33b375c4fa05a11fd43796099530c7a9cbc28fd"
     },
     {
       "path": "src/auth.cjs",
       "bytes": 11634,
       "sha256": "190814a2412ecb0938a25373f179f6b27ae146253b4edd2c4ee7fe0c8c0eb6c1"
+    },
+    {
+      "path": "src/categories.cjs",
+      "bytes": 2550,
+      "sha256": "fe514a1e68013e06d2872320c67eeedd61928d63e988c256e5331a688ef7e7e0"
     },
     {
       "path": "src/github.cjs",
@@ -141,6 +161,81 @@
       "path": "src/main.cjs",
       "bytes": 2047,
       "sha256": "678cd51bbb8bff9d65d7ebdc5a2b5f2f19d4ea41d943c7ecdd4c5acaade27d30"
+    },
+    {
+      "path": "src/native.cjs",
+      "bytes": 12785,
+      "sha256": "e4f1bf58d49faaa45c97c9d32189f8d1849ae6cf9bbf486b3f305a9c10c61123"
+    },
+    {
+      "path": "src/native/modules/docu.cjs",
+      "bytes": 14315,
+      "sha256": "ff8d95f90073ba972a353103adb4273a03d460bf9d62bd7858f118f43957814d"
+    },
+    {
+      "path": "src/native/modules/graphiques-planche.cjs",
+      "bytes": 39669,
+      "sha256": "df6777925940e524e96941c4c0f21dbe2747683847ece006907eaabf957612cd"
+    },
+    {
+      "path": "src/native/modules/graphiques.cjs",
+      "bytes": 136785,
+      "sha256": "783d0a7b683f3ba63a6bf5ce17646689300f99d08c2d94e77d094ab0ebbc721c"
+    },
+    {
+      "path": "src/native/modules/metisdocs.cjs",
+      "bytes": 59524,
+      "sha256": "5921c2372ed122a7f5da643372a0d25472cba3d9cebb12e16421ab05cb6ed168"
+    },
+    {
+      "path": "src/native/modules/metisexperts.cjs",
+      "bytes": 68835,
+      "sha256": "7b22f55f5f4cd13855d94958a64d36e22f2268ae90f6ae74fdb9154379cd64a2"
+    },
+    {
+      "path": "src/native/modules/metisusage.cjs",
+      "bytes": 6786,
+      "sha256": "8516b6651a2c60a424547f4466ffa6601752f52e5e31734e985fe3e2222c1d91"
+    },
+    {
+      "path": "src/native/web/metis-connector-panels.cjs",
+      "bytes": 19340,
+      "sha256": "ce939975bd6847d7a7b1b0e2523318c51a070056693e9bd432918595b81fa48f"
+    },
+    {
+      "path": "src/native/web/metis-experts-pages.cjs",
+      "bytes": 56993,
+      "sha256": "1523d0d5656278d5f1f38f3afca4eb07c3db9b61b72a7dc6e8d39890fe1de6cd"
+    },
+    {
+      "path": "src/native/web/metis-pages.cjs",
+      "bytes": 86151,
+      "sha256": "53acc8cb7663089a9aafb804507afde9c7bd2bae9d91446d1f782da77d93ef3c"
+    },
+    {
+      "path": "src/native/web/metis-securite-page.cjs",
+      "bytes": 61993,
+      "sha256": "d5475f54e937db305f3d938fd6e02a10685967ab2c855cf17d18ae7a1d61bb0b"
+    },
+    {
+      "path": "src/native/web/metis-usage-dashboard.cjs",
+      "bytes": 15544,
+      "sha256": "f517a2c1d27aa5e601dbbfd70b9bd1a273cac3026de43fd55f9643403a1db497"
+    },
+    {
+      "path": "src/native/web/public/icon.svg",
+      "bytes": 784,
+      "sha256": "3a47742bee89bba5ae6377bc7140b58fa1344a2b0e90e9912d48a9b0f8ada056"
+    },
+    {
+      "path": "src/native/web/public/metis-securite.js",
+      "bytes": 5403,
+      "sha256": "f1dd91db9a48bef4cb9d7cec43aa0b75a44237c61af712d78726171bb2a9fa05"
+    },
+    {
+      "path": "src/native/web/public/metis-usage.js",
+      "bytes": 4967,
+      "sha256": "2e10cccc6f0b684172e7eb10d016a9468dc55cad67a7b55550e0b29ac5ec092f"
     },
     {
       "path": "src/providers.cjs",
@@ -159,18 +254,18 @@
     },
     {
       "path": "src/security.cjs",
-      "bytes": 99598,
-      "sha256": "39922fc15e3a9eb8f7c88b89fb7d2e0d77681f1e1bb418aa0efe5eaa0c3327ca"
+      "bytes": 99978,
+      "sha256": "f17d85f250a7dd5c1ab83b311a79b4228ea61ab6436c6106e1410de25026d6a0"
     },
     {
       "path": "src/store.cjs",
-      "bytes": 13359,
-      "sha256": "8181d8db10d718b271f3f61ae2fd035daef7b6cfc046efd7e5a1b86965334296"
+      "bytes": 17000,
+      "sha256": "6837ce94ddfef413a9b2fa0488711ef38839ad3f9cd2ab85a6cc4f35c8a2d1c3"
     },
     {
       "path": "src/tools.cjs",
-      "bytes": 11273,
-      "sha256": "32b78e8b97dad5e44e240c1b57cf44fd00f44332933ade36db86f25952fb97d6"
+      "bytes": 12133,
+      "sha256": "7b4c3c1f9c77660de5b874363b09f2ed63510dd652de92947f6e5a66145f5117"
     },
     {
       "path": "src/util.cjs",
@@ -179,8 +274,13 @@
     },
     {
       "path": "Start-Metis.cmd",
-      "bytes": 62,
-      "sha256": "d6f73e23217d2e779abd6b9509ac44b8678396f306a2ad4da5867baad5e94406"
+      "bytes": 170,
+      "sha256": "b7b06449844b8fe2ec352a8dd569a9e1abe33930eb76653f8a8975d6b0b83d42"
+    },
+    {
+      "path": "test/categories.test.cjs",
+      "bytes": 6431,
+      "sha256": "3b056367579611e23683d9e892440ece0814b234c925efef4ebcc8b7c0082fb2"
     },
     {
       "path": "test/helpers.cjs",
@@ -191,6 +291,11 @@
       "path": "test/http.test.cjs",
       "bytes": 10683,
       "sha256": "58a2e629c456302d546c2233b1b344d81c4c66426f44c0eaabbc0c036f787e79"
+    },
+    {
+      "path": "test/native-interface.test.cjs",
+      "bytes": 1156,
+      "sha256": "21b208dde5beefa124c782aa45223b1d1b43b0e641ea5f79f860f123883b1a85"
     },
     {
       "path": "test/providers.test.cjs",

@@ -33,9 +33,16 @@ Aucun fichier à modifier pour commencer. Aucun appel IA au premier démarrage e
 aucune routine active par défaut. Le test de connexion IA effectue un petit appel
 au fournisseur choisi.
 
-Avec Node.js 24 ou plus récent, vous pouvez aussi lancer simplement `npm start`.
-Sous Windows, `Start-Metis.cmd` ouvre le serveur dans un terminal. Il n’y a aucune
-dépendance npm de production à installer ni de frontend à compiler.
+Avec Node.js 24 ou plus récent, lancez `npm ci --omit=dev --ignore-scripts`, puis
+`npm start`. Sous Windows, `Start-Metis.cmd` installe les dépendances à la première
+ouverture et lance le serveur. Aucun frontend à compiler.
+
+Les publications, le glossaire, les experts, les graphiques et le Security Center
+reprennent les fichiers de rendu de l’interface Métis d’origine. Le lien
+**Personnaliser les catégories**, dans la barre latérale, permet de renommer les
+catégories des publications et les trois groupes du Security Center. Le renommage
+conserve les documents associés et leur historique. Les libellés et la disposition
+d’origine sont conservés par défaut.
 
 ## Une première version d’analyse statique
 

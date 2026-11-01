@@ -1,6 +1,6 @@
 {
   "name": "metis-server",
-  "version": "0.1.0-beta.1",
+  "version": "0.1.0-beta.2",
   "private": true,
   "description": "Self-hosted research workspace and AI security audit routines",
   "license": "AGPL-3.0-only",
@@ -13,5 +13,8 @@
     "backup": "node --no-warnings scripts/backup.cjs",
     "restore": "node --no-warnings scripts/restore.cjs",
     "check:release": "node scripts/check-release.cjs"
+  },
+  "dependencies": {
+    "express": "4.22.3"
   }
 }
