@@ -1,0 +1,14 @@
+Métis Server
+Copyright (C) 2026 Plagnito and contributors.
+
+The Security Center business module (src/security.cjs) and its MCP tool
+definitions (src/security-tools.cjs) are adapted from the owner's Atlas
+repository, revision 227e897b68fbbaf2d6436084526519bf28ededf8.
+They were extracted with standalone storage, identity, repository selection,
+credentials and timezone configuration. No Atlas data or Git history is bundled.
+
+This distribution is licensed under GNU AGPL version 3 only, as authorized
+by the project owner. See LICENSE for the full license text.
+
+The interface icon is a project-native SVG. Documentation screenshots, when
+present, show synthetic demonstration data and simulated upstream services.

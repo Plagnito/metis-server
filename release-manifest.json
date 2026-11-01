@@ -1,0 +1,211 @@
+{
+  "format": "metis-source-release-v1",
+  "version": "0.1.0-beta.1",
+  "files": [
+    {
+      "path": ".dockerignore",
+      "bytes": 57,
+      "sha256": "b2b8122dde8eae4317dfe1c1200841aa35651659ec83b220e376ff9889ba5593"
+    },
+    {
+      "path": ".gitattributes",
+      "bytes": 43,
+      "sha256": "ceb9fb2ad7b60855abe6606e5394a4bfb5b4a6a96f84f00abb90b35e86b828d1"
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "bytes": 913,
+      "sha256": "aeb9bfb282def485a5f1745977a83162a1137c960ed1284ea1b22bbce9e74066"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 79,
+      "sha256": "db0261f32b0b5700b8f36ef2a540a8c0487ddd9600aebd77a838b9a621ae3de0"
+    },
+    {
+      "path": "docker-compose.yml",
+      "bytes": 430,
+      "sha256": "6d769b1bbd78af38fa3e256e75a6e18a69a8fecb371f62e34c3d904df985effd"
+    },
+    {
+      "path": "Dockerfile",
+      "bytes": 660,
+      "sha256": "0a107f4a53fb7736f389716564b0f74b88128e209dcf02904e7790755c80f642"
+    },
+    {
+      "path": "docs/backup.md",
+      "bytes": 2200,
+      "sha256": "4a2cccb7cdbc604bcb5536cf2785dec8bbe97388e35c4ef9177e5d887464d5a9"
+    },
+    {
+      "path": "docs/configuration.md",
+      "bytes": 4346,
+      "sha256": "32215da6b91b6694a97d557d6ec2780c27bf0a8d4f531f7f520ed4d631eb5fd9"
+    },
+    {
+      "path": "docs/images/dashboard.jpg",
+      "bytes": 89955,
+      "sha256": "bff78e856898b852c71af10dfde197acb94ddff43965a55d6a8a43d25fcfecac"
+    },
+    {
+      "path": "docs/validation.md",
+      "bytes": 1946,
+      "sha256": "396e1e9ecd7a3c9b7c4e5493b080e4350b4bf9a71e992ba0b04af1b3827cefc8"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 34524,
+      "sha256": "e9df4c4e4e64b8168a71c3c67668dcffabbe8fca11d4ac4a7d5482562cd1679c"
+    },
+    {
+      "path": "NOTICE",
+      "bytes": 716,
+      "sha256": "52691b9bd72c4b8a8c17cc736709fb84ee5f27fafda13a799d703684c5a4217b"
+    },
+    {
+      "path": "package.json",
+      "bytes": 544,
+      "sha256": "1626c51e07b345537e931543e26136e24ef384891a07e8b1f6d314a9e64c34da"
+    },
+    {
+      "path": "public/app.js",
+      "bytes": 42279,
+      "sha256": "a94ace99d78621964072ac50e26db665660dff630263aa56d75a2891133215cb"
+    },
+    {
+      "path": "public/favicon.svg",
+      "bytes": 206,
+      "sha256": "43c5977bb9f80721b02cb836556260a645aa5d6d82522f0adf36d348a2138cd3"
+    },
+    {
+      "path": "public/index.html",
+      "bytes": 631,
+      "sha256": "6caa0623e5fa858dfcc760d058e3e4db974e1d8f51c3674bdbb5900e8e2bbb4d"
+    },
+    {
+      "path": "public/style.css",
+      "bytes": 12302,
+      "sha256": "e242dd2e0d69e47e5005d9019ecc13c5e4a5c19ed71e62c37e4901e142957285"
+    },
+    {
+      "path": "README.fr.md",
+      "bytes": 4924,
+      "sha256": "e1c5398cc98a03089243d23bdc1830f56eda972e7c763b37fb5b3d5769b132ae"
+    },
+    {
+      "path": "README.md",
+      "bytes": 7339,
+      "sha256": "dffae6c4440d3da0a86d54f76310023577c17b2b8c6796d7ccd270ee0ba6e223"
+    },
+    {
+      "path": "scripts/backup.cjs",
+      "bytes": 2349,
+      "sha256": "92662ab388287931004b5a097145c5af79f31dff1cf46983d4017a1517f66aaa"
+    },
+    {
+      "path": "scripts/check-release.cjs",
+      "bytes": 3227,
+      "sha256": "a24ac3e1cf1a9853d982bf173e306dd10c46248dd0d56ff3cf72132be503cb34"
+    },
+    {
+      "path": "scripts/restore.cjs",
+      "bytes": 3254,
+      "sha256": "15f7ed626c274ea5b4e600dcc6f4257177d39aaa537b8fd27d540946dd8c3837"
+    },
+    {
+      "path": "scripts/smoke-container.cjs",
+      "bytes": 2273,
+      "sha256": "3a37cdaa0b63b357877c46ab13dc6a9ef85485e8d21822efe2841a05f349fb90"
+    },
+    {
+      "path": "SECURITY.md",
+      "bytes": 2673,
+      "sha256": "79392d13d4b112163f9283d14ffedd6f6717fc8b3d0bde344218edf14eb19a41"
+    },
+    {
+      "path": "src/app.cjs",
+      "bytes": 23454,
+      "sha256": "6ac04b60d37fbc32830a13e48c80016702237d1ec6aed8d4594d3d4347e37495"
+    },
+    {
+      "path": "src/auth.cjs",
+      "bytes": 11634,
+      "sha256": "190814a2412ecb0938a25373f179f6b27ae146253b4edd2c4ee7fe0c8c0eb6c1"
+    },
+    {
+      "path": "src/github.cjs",
+      "bytes": 6946,
+      "sha256": "55538b80de9373fd1ad40b147d0d673747203612fd948ebfbbb3247a840b3d63"
+    },
+    {
+      "path": "src/main.cjs",
+      "bytes": 2047,
+      "sha256": "678cd51bbb8bff9d65d7ebdc5a2b5f2f19d4ea41d943c7ecdd4c5acaade27d30"
+    },
+    {
+      "path": "src/providers.cjs",
+      "bytes": 9439,
+      "sha256": "feaaf9db03bac3b2e9eb345f96861403b43a72f66b691b0b270caa2b30aa60e1"
+    },
+    {
+      "path": "src/scheduler.cjs",
+      "bytes": 25696,
+      "sha256": "9e0f5ebf796390a7cc0d9ad852ab204072bb2ff988a5f1b1a41908f33afd3c63"
+    },
+    {
+      "path": "src/security-tools.cjs",
+      "bytes": 18725,
+      "sha256": "937c9967111ca97c3a055a4ebce007aa2db95b259a45b74b36b4419641ca6df9"
+    },
+    {
+      "path": "src/security.cjs",
+      "bytes": 99598,
+      "sha256": "39922fc15e3a9eb8f7c88b89fb7d2e0d77681f1e1bb418aa0efe5eaa0c3327ca"
+    },
+    {
+      "path": "src/store.cjs",
+      "bytes": 13359,
+      "sha256": "8181d8db10d718b271f3f61ae2fd035daef7b6cfc046efd7e5a1b86965334296"
+    },
+    {
+      "path": "src/tools.cjs",
+      "bytes": 11273,
+      "sha256": "32b78e8b97dad5e44e240c1b57cf44fd00f44332933ade36db86f25952fb97d6"
+    },
+    {
+      "path": "src/util.cjs",
+      "bytes": 4818,
+      "sha256": "63f02a8638879f975f49bc5cc2be41848f2bcf4e261b5a94abf6683c36451053"
+    },
+    {
+      "path": "Start-Metis.cmd",
+      "bytes": 62,
+      "sha256": "d6f73e23217d2e779abd6b9509ac44b8678396f306a2ad4da5867baad5e94406"
+    },
+    {
+      "path": "test/helpers.cjs",
+      "bytes": 5834,
+      "sha256": "85958d3553d5697504e6ee424f3993551dee90859a9bdc035d6bed0c0efc6e7d"
+    },
+    {
+      "path": "test/http.test.cjs",
+      "bytes": 10683,
+      "sha256": "58a2e629c456302d546c2233b1b344d81c4c66426f44c0eaabbc0c036f787e79"
+    },
+    {
+      "path": "test/providers.test.cjs",
+      "bytes": 6644,
+      "sha256": "5e6fd8803dcf75cf1cfd08cc9b45d53c6df97613b5f4819c696e28f98fa8f86b"
+    },
+    {
+      "path": "test/scheduler.test.cjs",
+      "bytes": 8690,
+      "sha256": "7f6767800c61063aaed428833c389ec8010093fb8ee0ef966c86e1864eca1cbc"
+    },
+    {
+      "path": "test/storage.test.cjs",
+      "bytes": 4898,
+      "sha256": "f97798f474bbfdba762dfe0494b63a9ad0ed14c6b590199c5168cbe09571db66"
+    }
+  ]
+}

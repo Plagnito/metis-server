@@ -1,0 +1,17 @@
+{
+  "name": "metis-server",
+  "version": "0.1.0-beta.1",
+  "private": true,
+  "description": "Self-hosted research workspace and AI security audit routines",
+  "license": "AGPL-3.0-only",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "start": "node --no-warnings src/main.cjs",
+    "test": "node --no-warnings --test --test-concurrency=1 test/*.test.cjs",
+    "backup": "node --no-warnings scripts/backup.cjs",
+    "restore": "node --no-warnings scripts/restore.cjs",
+    "check:release": "node scripts/check-release.cjs"
+  }
+}
