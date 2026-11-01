@@ -5,7 +5,7 @@ Date: 1 November 2026.
 ## Verified locally
 
 - Node v26.12.1 on Windows.
-- 43 automated tests passing with disposable SQLite databases and simulated
+- 44 automated tests passing with disposable SQLite databases and simulated
   GitHub, OpenAI, Anthropic and compatible-provider responses.
 - HTTP bootstrap/login/CSRF, document version conflicts and replay keys.
 - MCP initialization, scoped discovery, denied writes and revocation.

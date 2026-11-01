@@ -88,3 +88,9 @@ test('A shared credential cannot be sent to an old provider after the general en
   const before=upstream.seen.length;await assert.rejects(x.app.agents.adapter('auditeur').test(AbortSignal.timeout(5000)),{code:'PROVIDER_NOT_CONFIGURED'});
   assert.equal(upstream.seen.length,before);assert.equal(x.app.agents.adapter('auditeur').verified(),false);
 });
+test('State exports preserve HTML source excerpts as JSON data',async t=>{
+  const x=await instance(t,{fetchImpl:fakeUpstreams().fetchImpl});await prepare(x);
+  const source='<html><style>.example{color:red}</style><body>Source excerpt</body></html>';
+  x.app.security.declarerFaille('test',{depot:'Example/project',faille:{titre:'Synthetic HTML source candidate',gravite:'moyenne',emplacement:'index.html:1',description:source,preuves:[{type:'extrait',contenu:source,ref:'index.html:1'}]}},'test');
+  const state=await x.call('/metis/securite/etat.json');assert.equal(state.status,200);assert.equal(typeof state.value,'object');assert.equal(state.value.failles[0].description,source);assert.ok(!state.raw.includes('nonce='));
+});

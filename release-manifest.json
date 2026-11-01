@@ -55,7 +55,7 @@
     {
       "path": "docs/validation.md",
       "bytes": 3278,
-      "sha256": "9890d5faf3728edf2944cc8f308a5667f8cbce43a4f19ba2bb4bddf4ee8076e5"
+      "sha256": "c9113438d16136a43fa59c4aaad57390b528b02a8aa23604b97f1e96f6dfab5e"
     },
     {
       "path": "LICENSE",
@@ -194,8 +194,8 @@
     },
     {
       "path": "src/native.cjs",
-      "bytes": 15262,
-      "sha256": "403fe2a03bb6abb7735f8435777257941432c287c3e2e159b4e39247f27b08dd"
+      "bytes": 15285,
+      "sha256": "1f6f5eaf2bb6b7134b7b7cdb898c723d08e0eabdc1d14cb77290574967ef3872"
     },
     {
       "path": "src/native/modules/docu.cjs",
@@ -314,8 +314,8 @@
     },
     {
       "path": "test/agents.test.cjs",
-      "bytes": 9319,
-      "sha256": "c5cc3ec8eec435d3484d77e98f4cea37e06d1755c480d74c1ab75ca5cda99585"
+      "bytes": 10050,
+      "sha256": "755574459162d9c5ff831aa8df72fa3e4898ff78e667be837e8b739255f65805"
     },
     {
       "path": "test/appearance.test.cjs",

@@ -92,7 +92,7 @@ function createNative({ store, auth, security, tools, origin, sameOrigin,agents,
     res.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'nonce-"+nonce+"' https://fonts.googleapis.com; style-src-attr 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'");
     const send=res.send.bind(res);
     res.send=value=>{
-      if(typeof value==='string' && value.includes('<html')) {
+      if(typeof value==='string' && /^\s*(?:<!doctype html>|<html\b)/i.test(value)) {
         const actor=auth.identify(req,{bearer:false});
         value=value.replaceAll('<style>','<style nonce="'+nonce+'">')
           .replaceAll('__INSTANCE_MCP__',esc(origin()+'/mcp'))
