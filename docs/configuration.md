@@ -3,6 +3,12 @@
 The web interface is the main configuration path. A fresh server has no selected
 repositories, no provider credentials and no enabled routines.
 
+Before launching Security Center work, complete **Agents et modèles**. The general
+provider below remains available as an explicitly shared credential; each security
+role can instead use its own provider, model and encrypted key. See
+[the agent setup guide](security-center.md). A shared key cannot be sent to a
+different provider or compatible endpoint.
+
 ## Categories
 
 In the sidebar, open **Personnaliser les catégories** (`/metis/categories`).

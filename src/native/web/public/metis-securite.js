@@ -6,7 +6,7 @@
   var racine = document.querySelector('.sc');
   if (!racine) return;
 
-  var LIB = { critique: 'Critique', haute: 'Haute', moyenne: 'Moyenne', basse: 'Basse', saine: 'Saine', jamais: 'Jamais audité' };
+  var LIB = { critique: 'Critique', haute: 'Haute', moyenne: 'Moyenne', basse: 'Basse', saine: 'Saine', jamais: 'Jamais audité',partiel:'Analyse limitée' };
   var tuiles = Array.prototype.slice.call(racine.querySelectorAll('.sc-t'));
   var filtres = Array.prototype.slice.call(racine.querySelectorAll('.sc-filtre'));
   var fiche = racine.querySelector('.sc-fiche');

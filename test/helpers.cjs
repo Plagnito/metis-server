@@ -140,6 +140,7 @@ function fakeUpstreams(options = {}) {
         });
       if (options.providerError) return response({ error: "fixture" }, 429);
       if (options.customTurn) return options.customTurn(body, ++turns);
+      if(body.tools.some(t=>t.name==='finish_triage'))return response({status:'completed',output:[{type:'function_call',call_id:'synthetic-triage',name:'finish_triage',arguments:JSON.stringify({summary:'Suivi synthétique terminé. Les signalements nécessitent une relecture humaine.',actions:[]})}],usage:{total_tokens:160}});
       const scripted = [
         ["read_file", { path: "src/access.js", start_line: 1, line_count: 3 }],
         [
@@ -189,6 +190,10 @@ function configure(app) {
   c.provider.model = "fixture-model";
   app.store.set("config", c);
   app.store.secret("provider", "fixture-provider-key");
+  const agents=app.agents.settings();
+  agents.profiles=agents.profiles.map(p=>({...p,provider:{...c.provider},credential:'shared',enabled:p.id==='auditeur'}));
+  agents.completedAt=new Date().toISOString();app.store.set('securityAgents',agents);
+  app.store.set('securityRepositoryTest',{fingerprint:app.agents.repositoryFingerprint(),at:new Date().toISOString()});
   app.security.declarerDepots("fixture", {
     depots: [{ nom_complet: "Example/project" }],
   });

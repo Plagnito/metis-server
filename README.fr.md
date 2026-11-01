@@ -20,14 +20,23 @@ docker compose logs metis
 Ouvrez **http://localhost:4880**, récupérez le code d’installation dans les journaux,
 puis créez votre administrateur. Le code est utilisable une seule fois.
 
-Dans **Configuration** :
+Au premier accès au **Security Center**, le parcours **Agents et modèles** demande :
 
-1. Choisissez les modules, le nom et le fuseau de votre instance.
-2. Indiquez les dépôts GitHub que vous autorisez, un par ligne.
-3. Pour les dépôts privés, renseignez un jeton à permissions fines ou votre GitHub App.
-4. Choisissez OpenAI, Anthropic ou une API compatible, puis le modèle et sa clé.
-5. Enregistrez et testez les connexions.
-6. Dans **Routines**, choisissez un dépôt, un horaire et les limites avant activation.
+1. Les dépôts GitHub autorisés et la vérification de leur accès.
+2. Le nom, le fournisseur et le modèle de l’Auditeur et du Gestionnaire.
+3. Une clé propre à chaque rôle, ou le choix explicite de partager la clé générale.
+4. Les consignes, l’horaire, le fuseau et le budget de chaque agent.
+5. Le test des modèles, puis la validation finale. Vous choisissez si les routines
+   doivent démarrer ou rester en pause.
+
+Le Gestionnaire utilise son propre modèle pour proposer les prochaines actions à
+partir des PR et des signalements. Il ne confirme pas une faille et ne fusionne rien.
+Les journaux conservent le modèle réellement utilisé, les preuves et la consommation.
+Lors d’une mise à jour depuis une ancienne bêta, les routines sont mises en pause
+jusqu’à cette configuration. [Fonctionnement détaillé](docs/security-center.md).
+
+**Personnaliser l’interface** permet de changer le nom, le sous-titre, les libellés,
+l’ordre, la visibilité et les compteurs du menu montré dans la barre latérale.
 
 Aucun fichier à modifier pour commencer. Aucun appel IA au premier démarrage et
 aucune routine active par défaut. Le test de connexion IA effectue un petit appel

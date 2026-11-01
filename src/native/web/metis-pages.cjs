@@ -355,6 +355,8 @@ const icone = (n, t = 16) => '<svg width="' + t + '" height="' + t + '" viewBox=
  */
 function page(titre, corps, { description = '', nav = '', fil = null } = {}) {
   const G = require('../modules/graphiques');
+  const ui=require('../instance').appearance();
+  const marque=esc(ui.brand)+'<span>.</span>'+(ui.workspace?' '+esc(ui.workspace):'');
   const tete = '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
     + '<title>' + esc(titre) + '</title><meta name="robots" content="noindex, nofollow">'
     + (description ? '<meta name="description" content="' + esc(description) + '">' : '')
@@ -363,13 +365,13 @@ function page(titre, corps, { description = '', nav = '', fil = null } = {}) {
     + '<style>' + CSS + G.CSS + require('./metis-experts-pages').CSS + '</style></head><body>';
   const filHtml = fil && fil.length ? '<nav class="fil" aria-label="Fil d’Ariane">' + fil.map(([t, h], i) => (i ? '<span class="sep">/</span>' : '') + (h ? '<a href="' + esc(h) + '">' + esc(t) + '</a>' : '<strong>' + esc(t) + '</strong>')).join('') + '</nav>' : '';
   if (!nav) {
-    return tete + '<div class="appli" style="grid-template-columns:1fr"><div class="scene"><header class="barre"><a class="marque-mobile" style="display:block" href="/metis">Métis<span>.</span> Recherche</a></header>'
+    return tete + '<div class="appli" style="grid-template-columns:1fr"><div class="scene"><header class="barre"><a class="marque-mobile" style="display:block" href="/metis">'+marque+'</a></header>'
       + '<main>' + corps + '</main></div></div></body></html>';
   }
   return tete + '<input type="checkbox" id="menu" aria-label="Ouvrir le menu"><div class="appli">' + nav + '<label for="menu" class="voile" aria-hidden="true"></label>'
     + '<div class="scene"><header class="barre"><label for="menu" class="menu-bouton" title="Menu"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg><span class="hors-champ">Menu</span></label>'
-    + '<a class="marque-mobile" href="/metis">Métis<span>.</span></a>' + filHtml
-    + '<div class="actions"><a class="bouton-fin" href="/metis/experts">Experts</a><a class="bouton-fin" href="/metis/glossaire">Glossaire</a><a class="bouton-fin" href="/metis/graphiques">Graphiques</a></div></header>'
+    + '<a class="marque-mobile" href="/metis">'+marque+'</a>' + filHtml
+    + '<div class="actions">'+['experts','glossaire','graphiques'].map(id=>{const item=ui.navigation.find(n=>n.id===id);return item.visible?'<a class="bouton-fin" href="/metis/'+id+'">'+esc(item.label)+'</a>':'';}).join('')+'</div></header>'
     + '<main>' + corps + '</main><script src="/metis/metis.js" defer></script><footer class="pied"><span>Recherche Métis · pages réservées, non indexées</span><a href="/">plagnito.com</a><a href="https://docu.plagnito.com/metis-mcp">Connecteur MCP</a></footer></div></div></body></html>';
 }
 
@@ -447,20 +449,11 @@ function metisPages() {
     const parCat = {}; for (const d of docs) parCat[d.categorie] = (parCat[d.categorie] || 0) + 1;
     const parFam = {}; for (const g of sigles) { const f = g.categorie || 'Autres'; parFam[f] = (parFam[f] || 0) + 1; }
     const lien = (href, texte, n, on, avant = '') => '<a href="' + esc(href) + '"' + (on ? ' class="on" aria-current="page"' : '') + '>' + avant + '<span>' + esc(texte) + '</span>' + (n != null ? '<i>' + n + '</i>' : '') + '</a>';
-    let h = '<aside class="cote" aria-label="Navigation"><a class="marque" href="/metis">Métis<span>.</span> Recherche<small>Publications du système Métis</small></a>'
-      + '<form class="cherche" method="get" action="/metis/recherche" role="search">' + icone('recherche', 15) + '<input name="q" placeholder="Chercher un document, un sigle…" aria-label="Chercher dans Recherche Métis"></form>'
-      + '<nav class="groupe"><b>Explorer</b>'
-      + lien('/metis', 'Publications', docs.length, actif === 'publications', icone('publications'))
-      + lien('/metis?categorie=' + encodeURIComponent(require('../instance').architecture()), 'Plans d’architecture', parCat[require('../instance').architecture()] || 0, actif === 'architecture', icone('architecture'))
-      + lien('/metis/glossaire', 'Glossaire', sigles.length, actif === 'glossaire', icone('glossaire'))
-      + (sigles.some((g) => g.nature === 'protocole') ? lien('/metis/glossaire?nature=protocole', 'Protocoles', sigles.filter((g) => g.nature === 'protocole').length, actif === 'protocoles', icone('protocole')) : '')
-      + lien('/metis/experts', 'Experts', X.statistiques(moi.id).experts, actif === 'experts', icone('experts'))
-      + lien('/metis/graphiques', 'Graphiques', require('../modules/graphiques').CATALOGUE.length, actif === 'graphiques', icone('graphiques'))
-      + (require('../modules/metis-web-pages').enabled() ? lien('/metis/pages-web', 'Pages web', null, actif === 'pages-web', icone('publications')) : '')
-      + (M.estMaster(moi.id) ? lien('/metis/connecteur', 'Activité du connecteur', null, actif === 'connecteur', icone('architecture')) : '')
-      + (M.estMaster(moi.id) ? lien('/metis/securite', 'Security Center', null, actif === 'securite', icone('architecture')) : '')
-      + (M.estMaster(moi.id) && require('./metis-command-sources').enabled() ? lien('/metis/command-center', 'Command Center', null, actif === 'command-center', icone('architecture')) : '')
-      + '</nav>';
+    const ui=require('../instance').appearance();
+    const entries={publications:['/metis',docs.length,'publications'],architecture:['/metis?categorie='+encodeURIComponent(require('../instance').architecture()),parCat[require('../instance').architecture()]||0,'architecture'],glossaire:['/metis/glossaire',sigles.length,'glossaire'],experts:['/metis/experts',X.statistiques(moi.id).experts,'experts'],graphiques:['/metis/graphiques',require('../modules/graphiques').CATALOGUE.length,'graphiques'],connecteur:['/metis/connecteur',null,'architecture'],securite:['/metis/securite',null,'architecture']};
+    let h='<aside class="cote" aria-label="Navigation"><a class="marque" href="/metis">'+esc(ui.brand)+'<span>.</span>'+(ui.workspace?' '+esc(ui.workspace):'')+'<small>'+esc(ui.subtitle)+'</small></a>'
+      +'<form class="cherche" method="get" action="/metis/recherche" role="search">'+icone('recherche',15)+'<input name="q" placeholder="'+esc(ui.search)+'" aria-label="Chercher dans Recherche Métis"></form>'
+      +'<nav class="groupe"><b>'+esc(ui.section)+'</b>'+ui.navigation.filter(n=>n.visible).map(n=>{const [href,count,icon]=entries[n.id];return lien(href,n.label,ui.showCounts?count:null,actif===n.id,icone(icon));}).join('')+'</nav>';
     // Sur les pages du registre : les pools, comme les catégories des publications.
     if (actif === 'experts') { const ps = X.pools(moi.id) || []; if (ps.length) h += '<nav class="groupe"><b>Pools d’experts</b>' + ps.map((p) => lien('/metis/experts/pool/' + p.id, p.nom, p.experts, pool === p.id, '<span class="pastille" style="--c:' + (p.type === 'principal' ? 'var(--texte2)' : PALETTE[((p.couleur || 1) - 1) % PALETTE.length]) + '"></span>')).join('') + '</nav>'; }
     const cats = M.CATEGORIES.filter((c) => parCat[c]);
@@ -468,7 +461,7 @@ function metisPages() {
     const fams = Object.keys(parFam).sort((a, b) => a.localeCompare(b, 'fr'));
     if (fams.length) h += '<nav class="groupe"><b>Familles de sigles</b>' + fams.map((f) => lien('/metis/glossaire#famille-' + ancreDe(f), f, parFam[f], famille === f, '<span class="pastille" style="--c:' + teinte(f) + '"></span>')).join('') + '</nav>';
     h += '<div class="bas"><span>Connecté : <b style="color:var(--texte2)">' + esc(moi.pseudo) + '</b></span>'
-      + (M.estMaster(moi.id) ? '<a href="/metis/categories">Personnaliser les catégories</a><a href="/metis/instance#settings">Réglages de l’instance</a><a href="/metis/instance#connectors">' + 'Gérer les accès' + '</a>' : '') + '<a href="/">← plagnito.com</a></div></aside>';
+      + (M.estMaster(moi.id) ? '<a href="/metis/apparence">Personnaliser l’interface</a><a href="/metis/categories">Personnaliser les catégories</a><a href="/metis/securite/configuration">Agents et modèles</a><a href="/metis/instance#settings">Réglages de l’instance</a><a href="/metis/instance#connectors">Gérer les accès</a>' : '') + '<a href="/">← Accueil</a></div></aside>';
     return h;
   }
   const envoyer = (res, moi, titre, h, { actif, fil, description, categorie, famille, pool } = {}) =>

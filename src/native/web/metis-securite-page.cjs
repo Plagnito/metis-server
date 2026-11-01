@@ -18,7 +18,7 @@ const DATE_LONGUE = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris',
 const DATE_COURTE = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', day: 'numeric', month: 'short' });
 const hh = (iso) => iso ? HEURE.format(new Date(iso)) : '—';
 const h2 = (n) => String(n).padStart(2, '0');
-const LIB = { critique: 'Critique', haute: 'Haute', moyenne: 'Moyenne', basse: 'Basse', saine: 'Saine', jamais: 'Jamais audité' };
+const LIB = { critique: 'Critique', haute: 'Haute', moyenne: 'Moyenne', basse: 'Basse', saine: 'Saine', jamais: 'Jamais audité',partiel:'Analyse limitée' };
 const LIB_STATUT = { nouvelle: 'Nouvelle', confirmee: 'Confirmée', pr_ouverte: 'PR ouverte', corrigee: 'Corrigée, à revalider', revalidee: 'Revalidée', faux_positif: 'Faux positif', acceptee: 'Risque accepté' };
 const LIB_ETAT = { prevu: 'à venir', en_cours: 'en cours', termine: 'terminé', reporte: 'reporté', echec: 'échec' };
 const LIB_ETAPE = { plan: 'Plan reçu', lecture: 'Code lu', tests: 'Tests', rapport: 'Rapport' };
@@ -243,7 +243,7 @@ const CSS = `
 function versionDe(e) {
   const base = JSON.stringify([e.plan && e.plan.etabli_le, e.creneaux.map((c) => [c.id, c.etat, c.derniere_activite, c.etape]), e.failles.map((f) => [f.id, f.statut, f.maj_le]), e.depots.length, e.corrections, e.depots.map((d) => d.importance.niveau[0]).join(''),
     e.agents.auditeur.etat, e.agents.gestionnaire.etat, e.agents.gestionnaire.prochain_passage, (e.journaux.audits[0] || {}).id, (e.journaux.gestion[0] || {}).id]);
-  return crypto.createHash('sha1').update(base).digest('hex').slice(0, 16);
+  return crypto.createHash('sha1').update(base+JSON.stringify(e.instanceRevision||null)).digest('hex').slice(0, 16);
 }
 
 function tuile(d, maintenant, prochain, choisi) {
@@ -260,7 +260,7 @@ function tuile(d, maintenant, prochain, choisi) {
   const titreComplet = titre + (imp !== 'actif' ? ' · ' + LIB_IMP[imp].toLowerCase() : '');
   if (d.famille === 'ecosysteme') {
     return '<button type="button" class="' + cls + '" title="' + esc(titreComplet) + '" aria-label="' + esc(titreComplet) + '"' + data + '><span><i class="f-' + d.statut + '"></i><em>' + esc(d.nom) + '</em></span><small>'
-      + esc((imp !== 'actif' ? LIB_IMP[imp].toLowerCase() + ' · ' : '') + (d.statut === 'jamais' ? 'jamais audité' : (c.length ? c.join(' · ') : 'saine') + (vu ? ' · vu aujourd’hui' : ''))) + '</small></button>';
+      + esc((imp !== 'actif' ? LIB_IMP[imp].toLowerCase() + ' · ' : '') + (d.statut === 'jamais' ? 'jamais audité' : (c.length ? c.join(' · ') : d.statut==='partiel'?'analyse limitée':'saine') + (vu ? ' · vu aujourd’hui' : ''))) + '</small></button>';
   }
   return '<button type="button" class="' + cls + '" title="' + esc(titreComplet) + '" aria-label="' + esc(titreComplet) + '"' + data + '></button>';
 }
@@ -304,11 +304,13 @@ function journalAgent(id, titre, sous, ops, m, vide) {
 const LIB_SOURCE = { manuel: 'réglé à la main', base: 'classement de base', auto: 'règle automatique', defaut: 'par défaut' };
 
 function render(e, options = {}) {
+  const instance=require('../instance'), pages=instance.securityPages, configured=instance.securitySetup.report(), ui=instance.appearance();
   const m = e.maintenant;
   const R = e.resume;
   const parHeure = {}; for (const c of e.creneaux) parHeure[c.heure] = c;
   const prochainDe = {};
   for (const c of e.creneaux) if (c.etat === 'prevu' && !prochainDe[c.depot]) prochainDe[c.depot] = 'aujourd’hui ' + h2(c.heure) + ':00';
+  Object.assign(prochainDe,pages.nextByRepo());
   const resultatDe = (c) => {
     if (!c) return { cls: 'prevu', txt: '' };
     if (c.etat === 'termine') {
@@ -323,12 +325,12 @@ function render(e, options = {}) {
   // ── En-tête : l'état de CHAQUE agent, jamais une « routine » unique ──
   const A = e.agents;
   const G = e.gestion;
-  const entete = '<header class="sc-tete"><div><div class="sc-sur">Métis · Security Center</div><h1>Sécurité du parc</h1><div class="sc-meta">'
-    + esc(DATE_LONGUE.format(new Date(m)).replace(/^./, (x) => x.toUpperCase())) + ' · '
-    + R.depots + ' dépôts suivis' + (R.importance.mort ? ', ' + R.importance.mort + ' morts' : '') + ' · 2 routines automatisées</div></div>'
-    + '<div class="sc-actions">' + pastilleAgent(A.auditeur) + pastilleAgent(A.gestionnaire)
+  const entete = '<header class="sc-tete"><div><div class="sc-sur">'+esc(ui.brand)+' · '+esc(ui.navigation.find(n=>n.id==='securite').label)+'</div><h1>Sécurité du parc</h1><div class="sc-meta">'
+    + esc(new Intl.DateTimeFormat('fr-FR',{timeZone:instance.timezone(),weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date(m)).replace(/^./, (x) => x.toUpperCase())) + ' · '
+    + R.depots + ' dépôts suivis' + (R.importance.mort ? ', ' + R.importance.mort + ' morts' : '') + ' · '+configured.profiles.filter(p=>p.enabled).length+' agents configurés</div></div>'
+    + '<div class="sc-actions"><a class="sc-bouton" href="/metis/securite/configuration">Agents et modèles</a>'
     + (e.synchro.ok === false ? '<span class="sc-pastille alerte" title="' + esc(e.synchro.message) + '">Inventaire partiel : dépôts publics seulement</span>' : '')
-    + '<a class="sc-bouton" href="#sc-audits">Audits récents</a><a class="sc-bouton plein" href="/metis/securite/etat.json?telecharger=1">Exporter l’état</a></div></header>';
+    + '<a class="sc-bouton" href="#sc-travaux">Journaux des travaux</a><a class="sc-bouton plein" href="/metis/securite/etat.json?telecharger=1">Exporter l’état</a></div></header>';
 
   // ── Indicateurs ──
   const sevs = S.GRAVITES.map((g) => ({ g, n: R.par_gravite[g] }));
@@ -534,8 +536,8 @@ function render(e, options = {}) {
     + '<p class="sc-note">Un créneau d’audit sans signe de vie pendant ' + S.SILENCE_MIN + ' minutes est marqué reporté ; un passage du gestionnaire silencieux ' + S.GESTION_SILENCE_MIN + ' minutes, interrompu. Jamais réussi.</p></div></aside>';
 
   const bandeau = options.erreur ? '<p class="sc-erreur" role="alert">' + esc(options.erreur) + '</p>' : '';
-  return '<style>' + CSS + '</style><div class="sc" data-version="' + versionDe(e) + '">' + bandeau + entete + vue + kpis
-    + '<div class="sc-corps"><div class="sc-principal"><div class="sc-deux">' + direct + vingtQuatre + '</div>' + mur + gestion + journaux + failles + surveiller + tendances + audits + '</div>' + rail + '</div></div>'
+  return pages.style+'<style>' + CSS + '</style><div class="sc" data-version="' + versionDe(e) + '">' + bandeau + entete + pages.agentCards() + pages.kpis(e)
+    + '<div class="sc-corps"><div class="sc-principal">'+pages.jobTable()+ mur + gestion + journaux + failles + surveiller + tendances + audits.replace('Audits récents','Audits déclarés via le connecteur') + '</div>' + pages.rail() + '</div></div>'
     + '<script src="/metis/securite.js" defer></script>';
 }
 

@@ -626,6 +626,7 @@ function connectors() {
   );
 }
 function jobForm() {
+  if(!state.securitySetup?.ready){location.assign('/metis/securite/configuration');return;}
   if (!state.config.repositories.length) {
     notify("Sélectionnez d’abord un dépôt dans la configuration.", true);
     location.hash = "settings";
@@ -635,9 +636,9 @@ function jobForm() {
     "Lancer un travail",
     '<form id="job-form"><label>Dépôt<select name="repository">' +
       repoOptions() +
-      '</select></label><label>Travail<select name="kind"><option value="audit">Analyse statique avec votre IA</option><option value="followup">Suivi des PR · sans appel IA</option></select></label>' +
+      '</select></label><label>Agent<select name="kind">'+state.securitySetup.profiles.filter(p=>p.enabled).map(p=>'<option value="'+p.kind+'">'+E(p.name)+' · '+E(p.provider.model)+'</option>').join('')+'</select></label>' +
       budgetFields() +
-      '<div class="hint">L’analyse transmet les extraits lus au fournisseur configuré. Le journal affiche les lectures, les appels et leurs limites.</div><button>Lancer le travail</button></form>',
+      '<div class="hint">Chaque rôle utilise son modèle configuré. Le budget de l’agent plafonne les limites de ce travail ; le journal conserve les lectures, les appels et le modèle utilisé.</div><button>Lancer le travail</button></form>',
   );
 }
 function repoOptions(selected) {
@@ -708,7 +709,7 @@ function routineForm(r) {
       repoOptions(r?.repository) +
       '</select></label><label>Travail<select name="kind"><option value="audit">Analyse statique</option><option value="followup" ' +
       (r?.kind === "followup" ? "selected" : "") +
-      '>Suivi des PR</option></select></label></div><div class="form-row"><label>Horaire quotidien<input type="time" name="time" value="' +
+      '>Suivi des PR avec le gestionnaire IA</option></select></label></div><div class="form-row"><label>Horaire quotidien<input type="time" name="time" value="' +
       String(r?.hour ?? 9).padStart(2, "0") +
       ":" +
       String(r?.minute ?? 0).padStart(2, "0") +

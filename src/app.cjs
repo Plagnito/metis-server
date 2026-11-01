@@ -10,6 +10,8 @@ const { createProviders } = require("./providers.cjs");
 const { createScheduler } = require("./scheduler.cjs");
 const { createTools } = require("./tools.cjs");
 const { createNative } = require("./native.cjs");
+const { createAgentConfig } = require("./agent-config.cjs");
+const { createAppearance } = require("./appearance.cjs");
 const {
   fail,
   object,
@@ -27,6 +29,9 @@ const STATIC = new Map([
   ["/app.js", ["app.js", "application/javascript; charset=utf-8"]],
   ["/style.css", ["style.css", "text/css; charset=utf-8"]],
   ["/instance.css", ["instance.css", "text/css; charset=utf-8"]],
+  ["/security-settings.css", ["security-settings.css", "text/css; charset=utf-8"]],
+  ["/security-settings.js", ["security-settings.js", "application/javascript; charset=utf-8"]],
+  ["/security-job.js", ["security-job.js", "application/javascript; charset=utf-8"]],
   ["/favicon.svg", ["favicon.svg", "image/svg+xml"]],
 ]);
 function createApp(options = {}) {
@@ -50,10 +55,11 @@ function createApp(options = {}) {
     githubFetch: github.rawFetch,
   });
   security.init();
-  const scheduler = createScheduler(store, security, github, providers),
+  const agents=createAgentConfig(store,fetchImpl,github), appearance=createAppearance(store);
+  const scheduler = createScheduler(store, security, github, providers, agents),
     tools = createTools(store, security, scheduler);
   const oauth = createOAuth(store, auth, origin);
-  const native = createNative({store,auth,security,tools,origin,sameOrigin});
+  const native = createNative({store,auth,security,tools,origin,sameOrigin,agents,appearance,scheduler});
   const rawToolCall = tools.call;
   tools.call = async (name,args,actor) => {
     const started=performance.now(); let result, failed=false;
@@ -412,6 +418,35 @@ function createApp(options = {}) {
       if (p.startsWith("/api/")) {
         const actor = auth.requireAdmin(req);
         if (!["GET", "HEAD"].includes(req.method)) browserWrite(req, actor);
+        if(p==='/api/security/setup' && req.method==='GET'){
+          json(res,{...agents.report(),csrf:actor.csrf,config:store.config(),configRevision:store.get('configRevision',1),githubHasKey:!!store.secret('github')||!!store.secret('githubAppKey')});return;
+        }
+        if(p==='/api/security/setup' && req.method==='POST'){json(res,agents.save(await body(req),actor.id));return;}
+        const agentTest=/^\/api\/security\/agents\/(auditeur|gestionnaire)\/test$/.exec(p);
+        if(agentTest && req.method==='POST'){
+          await body(req);auth.limit('agent-test',6,60000);json(res,await agents.adapter(agentTest[1]).test(AbortSignal.timeout(45000)));return;
+        }
+        if(p==='/api/security/repositories/test' && req.method==='POST'){
+          await body(req);auth.limit('repository-setup-test',3,60000);json(res,await agents.testRepositories(AbortSignal.timeout(60000)));return;
+        }
+        if(p==='/api/security/complete' && req.method==='POST'){
+          const input=await body(req);object(input,['expected_revision','activate']);
+          if(typeof input.activate!=='boolean')fail('INVALID_ARGUMENT','Choisissez explicitement l’activation des routines.');
+          store.transaction(()=>{
+          agents.complete(input.expected_revision,actor.id);
+          // One daily routine per role and repository; existing unrelated routines are preserved.
+          for(const profile of agents.settings().profiles.filter(p=>p.enabled))for(const repository of store.config().repositories){
+            const id='agent-'+hash(profile.id+':'+repository.toLowerCase()).slice(0,24);
+            const prior=store.db.prepare('SELECT revision FROM routines WHERE id=?').get(id);
+            scheduler.saveRoutine({id,title:profile.name+' · '+repository,repository,kind:profile.id==='auditeur'?'audit':'followup',timezone:profile.timezone,hour:profile.hour,minute:profile.minute,limits:profile.limits,enabled:input.activate,expected_revision:prior?.revision||0},actor.id);
+          }
+          });
+          json(res,agents.report());return;
+        }
+        if(p==='/api/appearance' && req.method==='GET'){json(res,{appearance:appearance.get(),revision:appearance.revision(),csrf:actor.csrf});return;}
+        if(p==='/api/appearance' && req.method==='POST'){
+          const input=await body(req);object(input,['appearance','expected_revision']);json(res,{appearance:appearance.save(input.appearance,input.expected_revision,actor.id),revision:appearance.revision()});return;
+        }
         if (req.method === "GET" && p === "/api/state") {
           const config = store.config();
           json(res, {
@@ -426,6 +461,8 @@ function createApp(options = {}) {
               provider: !!store.secret("provider"),
             },
             providerVerified: providers.verified(),
+            securitySetup: agents.report(),
+            appearance: appearance.get(),
             routines: scheduler.routines(),
             jobs: scheduler.listJobs(),
             documents: store.db
@@ -630,7 +667,7 @@ function createApp(options = {}) {
         return;
       }
       const message = e.code
-        ? redact(e.message, [store.secret("provider"), store.secret("github")])
+        ? redact(e.message, [store.secret("provider"), store.secret("github"),store.secret('agent:auditeur'),store.secret('agent:gestionnaire')])
         : "Erreur interne du serveur.";
       json(
         res,
@@ -668,6 +705,8 @@ function createApp(options = {}) {
     auth,
     github,
     providers,
+    agents,
+    appearance,
     security,
     scheduler,
     tools,

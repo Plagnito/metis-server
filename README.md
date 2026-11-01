@@ -13,6 +13,16 @@ does not require a Plagnito account or a specific Raspberry Pi.
 adapters are covered by simulated API contract tests; verify access to your chosen
 model using the connection test before enabling an audit routine.
 
+The Security Center now requires initial agent setup: separate auditor and manager
+names, providers, models, credentials, instructions, schedules and budgets. Access
+to GitHub and enabled models must be verified before completion; routine activation
+is an explicit choice. Existing automatic routines are paused during migration.
+Jobs record the model actually used. The manager provides advisory PR/finding
+follow-up using its assigned model, without confirming findings or merging PRs.
+
+**Personnaliser l’interface** customizes the sidebar name, subtitle, labels, order,
+visibility and counters. See [Security Center configuration](docs/security-center.md).
+
 ## Install
 
 With Docker and Docker Compose installed:

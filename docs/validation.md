@@ -1,11 +1,11 @@
-# Preview validation — 0.1.0-beta.2
+# Preview validation — 0.1.0-beta.3
 
 Date: 1 November 2026.
 
 ## Verified locally
 
 - Node v26.12.1 on Windows.
-- 34 automated tests passing with disposable SQLite databases and simulated
+- 42 automated tests passing with disposable SQLite databases and simulated
   GitHub, OpenAI, Anthropic and compatible-provider responses.
 - HTTP bootstrap/login/CSRF, document version conflicts and replay keys.
 - MCP initialization, scoped discovery, denied writes and revocation.
@@ -21,10 +21,9 @@ Date: 1 November 2026.
   administrator persistence after restart.
 - Browser verification: navigation, document creation, routine creation in pause,
   configuration save and dashboard rendering on the local demonstration instance.
-- Original publication and Security Center CSS match the upstream revision
-  byte for byte. The Security Center browser script is unchanged. With the default
-  labels and the same state, the complete Security Center HTML matches the original
-  renderer (revision 227e897b68fbbaf2d6436084526519bf28ededf8).
+- The original publication and Security Center base CSS is retained. Agent setup,
+  job monitoring and appearance controls use the same design tokens; repository
+  interactions retain their original behavior with a limited-analysis status label.
 - Native publications, readers, glossary, experts, chart catalogue, connector
   dashboard and configuration routes render with the local administrator session.
 - Category migration, renaming, stable membership/colours, historical names,
@@ -32,6 +31,13 @@ Date: 1 November 2026.
 - Browser form submission verified for publication and Security Center category
   names; original labels restored after testing. Native repository filters and
   detail selection verified without browser errors.
+- Initial admission requires configuration, GitHub access checks and model tests;
+  no provider call is made by startup. Migration pauses existing automatic routines.
+- Distinct models and credentials actually used by auditor and manager; advisory
+  triage does not mutate the candidate's confirmation status. Per-role budget caps,
+  queued-job provenance, credential rotation and test races verified.
+- Sidebar identity, labels, order, visibility and restoration verified through the
+  browser; stale writes and HTML injection protected by tests.
 
 No private repository was sent to a provider and no real provider API call was
 made. The visual demonstration uses only synthetic data and mock services.

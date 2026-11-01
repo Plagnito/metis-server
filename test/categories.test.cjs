@@ -1,6 +1,6 @@
 "use strict";
 const test=require("node:test"), assert=require("node:assert/strict");
-const {openStore}=require("../src/store.cjs"), {validateCategories}=require("../src/categories.cjs"), {temp,instance}=require("./helpers.cjs");
+const {openStore}=require("../src/store.cjs"), {validateCategories}=require("../src/categories.cjs"), {temp,instance,fakeUpstreams,configure}=require("./helpers.cjs");
 
 test("Renaming a category preserves membership, history and colour across restart",()=>{
   const dir=temp();let store=openStore(dir);
@@ -35,7 +35,7 @@ test("The beta database migrates without replacing documents or configuration",(
   const d=store.db.prepare("SELECT * FROM documents WHERE slug='study'").get();assert.equal(d.body,"Version one");assert.equal(d.category_id,"research");store.close();
 });
 test("Native pages enforce sessions and CSRF; renamed labels propagate to filters and readers",async(t)=>{
-  const x=await instance(t);assert.equal((await x.call('/metis')).status,302);await x.bootstrap();
+  const x=await instance(t,{fetchImpl:fakeUpstreams().fetchImpl});assert.equal((await x.call('/metis')).status,302);await x.bootstrap();configure(x.app);await x.app.providers.test(AbortSignal.timeout(5000));
   x.app.store.saveDocument({slug:"study",title:"A study",body:"## Introduction\n\nResearch",status:"published",expected_version:0},"test");
   x.app.store.saveDocument({slug:"plan",title:"A plan",body:"Plan",category_id:"architecture",status:"published",expected_version:0},"test");
   const page=await x.call('/metis/categories');assert.equal(page.status,200);assert.ok(page.raw.includes('name="_csrf" value="'+x.csrf+'"'));

@@ -1,9 +1,12 @@
 "use strict";
 const { fail, jsonFetch } = require("./util.cjs");
-function createProviders(store, fetchImpl = fetch) {
+function createProviders(store, fetchImpl = fetch, binding = {}) {
+  const currentConfig=binding.config || (()=>store.config().provider), currentKey=binding.key || (()=>store.secret('provider'));
+  const testKey=binding.testKey || 'providerTest';
+  const fingerprint=()=>require('./util.cjs').hash(JSON.stringify(currentConfig())+currentKey());
   async function turn(messages, tools, limits, signal) {
-    const config = store.config().provider,
-      key = store.secret("provider");
+    const config = currentConfig(),
+      key = currentKey();
     if (!config.model || (config.kind !== "compatible" && !key))
       fail(
         "PROVIDER_NOT_CONFIGURED",
@@ -226,7 +229,8 @@ function createProviders(store, fetchImpl = fetch) {
     };
   }
   async function test(signal) {
-    store.set("providerTest", null);
+    const testedFingerprint=fingerprint();
+    store.set(testKey, null);
     const tool = {
       name: "connection_check",
       description: "Return the exact value metis-ok to verify tool calling.",
@@ -260,23 +264,19 @@ function createProviders(store, fetchImpl = fetch) {
         "TOOLS_UNAVAILABLE",
         "La connexion répond, mais le test d’appel d’outil n’a pas réussi.",
       );
-    const fingerprint =
-      JSON.stringify(store.config().provider) + store.secret("provider");
-    store.set("providerTest", {
+    if(testedFingerprint!==fingerprint())fail('REVISION_CONFLICT','Le modèle ou la clé a changé pendant le test. Relancez-le.',409);
+    store.set(testKey, {
       at: new Date().toISOString(),
-      fingerprint: require("./util.cjs").hash(fingerprint),
+      fingerprint: testedFingerprint,
     });
     return { ok: true, tokens: r.tokens, usageReported: r.usageReported };
   }
   function verified() {
     return (
-      store.get("providerTest")?.fingerprint ===
-      require("./util.cjs").hash(
-        JSON.stringify(store.config().provider) + store.secret("provider"),
-      )
+      store.get(testKey)?.fingerprint === fingerprint()
     );
   }
-  return { turn, test, verified };
+  return { turn, test, verified, fingerprint };
 }
 function parseArguments(value) {
   try {

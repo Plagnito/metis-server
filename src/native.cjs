@@ -2,11 +2,14 @@
 // Instance adapters for the original Métis server-rendered interface.
 const path = require("node:path"), fs = require("node:fs"), crypto = require("node:crypto");
 const express = require("express");
-const { esc, equal, fail } = require("./util.cjs");
+const { esc, equal, fail, text } = require("./util.cjs");
 const { validateCategories } = require("./categories.cjs");
+const {createSecurityPages}=require('./security-pages.cjs');
 
-function createNative({ store, auth, security, tools, origin, sameOrigin }) {
+function createNative({ store, auth, security, tools, origin, sameOrigin,agents,appearance,scheduler }) {
   const { db } = store, cache = new Map(), started = new Date().toISOString();
+  const pages=createSecurityPages({store,agents,scheduler,appearance});
+  const securityView={...security,etat:(...args)=>pages.state(security.etat(...args))};
   for(const d of db.prepare("SELECT nom_complet,proprietaire,nom FROM securite_depots WHERE famille='depots'").all())
     db.prepare("UPDATE securite_depots SET famille=? WHERE nom_complet=?").run(security.familleDe(d.proprietaire,d.nom),d.nom_complet);
   // One source of truth: the existing document store, exposed in the native shape.
@@ -38,7 +41,7 @@ function createNative({ store, auth, security, tools, origin, sameOrigin }) {
       return row ? { name:JSON.parse(row.data).client_name } : null;
     } },
     "modules/metis-research-journal": { install:()=>{}, bindWriters:()=>{} },
-    "modules/metis-securite": security,
+    "modules/metis-securite": securityView,
     "modules/metis-web-pages": disabled,
     "modules/metisarchitecture": { audit:()=>null },
     "web/metis-lab-gateway": { snapshot:async()=>({enabled:false,available:false}) },
@@ -57,7 +60,8 @@ function createNative({ store, auth, security, tools, origin, sameOrigin }) {
       req.on('close',()=>{clearInterval(timer);unsubscribe();});
       send();
     } },
-    instance: { account, color:name=>store.config().categories.find(c=>c.name===name)?.color,
+    instance: { account, appearance:appearance.get,securityPages:pages,securitySetup:agents,timezone:()=>store.config().timezone,
+      color:name=>store.config().categories.find(c=>c.name===name)?.color,
       architecture:()=>store.config().categories.find(c=>c.id==='architecture')?.name || '__no_architecture__', mount },
   };
   for (const name of ['center','sources','timeline','observatory','experiments','agents','studio','security','history','neural','workflows','live']) special['web/metis-command-'+name]=disabled;
@@ -92,6 +96,7 @@ function createNative({ store, auth, security, tools, origin, sameOrigin }) {
         const actor=auth.identify(req,{bearer:false});
         value=value.replaceAll('<style>','<style nonce="'+nonce+'">')
           .replaceAll('__INSTANCE_MCP__',esc(origin()+'/mcp'))
+          .replace('action="/metis/securite/lancer">','action="/metis/securite/lancer"><input type="hidden" name="requestKey" value="'+crypto.randomUUID()+'">')
           .replace(/(<form\b[^>]*\bmethod=["']post["'][^>]*>)/gi,'$1<input type="hidden" name="_csrf" value="'+esc(actor?.csrf||'')+'">');
       }
       return send(value);
@@ -122,6 +127,30 @@ function createNative({ store, auth, security, tools, origin, sameOrigin }) {
       lab_contract:{version:null,tools:[]},observed_since:started,recent_errors:[],selftest:null };
   }
   function mount(router,{garde,envoyer}) {
+    const sendSettings=(req,res,title,body)=>{const moi=garde(req,res);if(!moi)return;envoyer(res,moi,title+' — Métis',body(),{actif:'securite',fil:[['Recherche Métis','/metis'],[title,null]]});};
+    router.get('/securite/configuration',(req,res)=>sendSettings(req,res,'Agents et modèles',pages.setup));
+    router.get('/apparence',(req,res)=>sendSettings(req,res,'Personnaliser l’interface',pages.appearanceForm));
+    router.get('/securite',(req,res,next)=>{
+      const moi=garde(req,res);if(!moi)return;
+      if(!agents.ready())return res.redirect(303,'/metis/securite/configuration');next();
+    });
+    router.get('/securite/etat.json',(req,res,next)=>{
+      const moi=garde(req,res);if(!moi)return;
+      if(!agents.ready())return res.status(409).json({setupRequired:true,url:'/metis/securite/configuration'});next();
+    });
+    router.post('/securite/lancer',(req,res)=>{
+      const moi=garde(req,res);if(!moi)return;
+      const input={repository:String(req.body.repository||''),kind:String(req.body.kind||'audit')},key='form:'+text(req.body.requestKey,'Clé de lancement',80);
+      const result=store.mutation(String(moi.id),key,input,()=>scheduler.manual(input,key));
+      res.redirect(303,'/metis/securite/travaux/'+result.id);
+    });
+    router.get('/securite/travaux/:id',(req,res)=>sendSettings(req,res,'Journal du travail',()=>{
+      const job=scheduler.getJob(req.params.id),version=JSON.stringify([job.state,job.usage.calls||0,job.usage.tokens||0,job.events.length]);
+      return '<div data-security-job="'+esc(job.id)+'" data-state="'+esc(job.state)+'" data-version="'+esc(version)+'">'+pages.jobDetail(job.id)+'</div><script src="/security-job.js" defer></script>';
+    }));
+    for(const action of ['cancel','resume'])router.post('/securite/travaux/:id/'+action,(req,res)=>{
+      if(!garde(req,res))return;scheduler[action](req.params.id);res.redirect(303,'/metis/securite/travaux/'+req.params.id);
+    });
     router.get('/instance',(req,res)=>{
       const moi=garde(req,res);if(!moi)return;
       envoyer(res,moi,'Réglages de l’instance — Métis','<link rel="stylesheet" href="/instance.css"><div id="app"></div><dialog id="dialog"></dialog><div id="notice" role="status"></div><script src="/app.js" defer></script>',{fil:[['Recherche Métis','/metis'],['Votre instance',null]]});
