@@ -4,6 +4,7 @@ const http = require("node:http"),
   path = require("node:path");
 const { openStore, validateConfig } = require("./store.cjs");
 const { createAuth, createOAuth } = require("./auth.cjs");
+const { clientIp, trustedProxyIps } = require("./client-ip.cjs");
 const { createSecurity } = require("./security.cjs");
 const { createGithub } = require("./github.cjs");
 const { createProviders } = require("./providers.cjs");
@@ -41,6 +42,7 @@ function createApp(options = {}) {
       path.join(__dirname, "../data"),
   );
   const fetchImpl = options.fetchImpl || fetch;
+  const trustedProxies = trustedProxyIps(options.trustedProxyIps ?? process.env.METIS_TRUSTED_PROXY_IPS ?? "");
   let server;
   const origin = () =>
     store.config().baseUrl ||
@@ -157,7 +159,7 @@ function createApp(options = {}) {
     text(req.headers["idempotency-key"], "Clé de modification", 160);
   async function handler(req, res) {
     headers(res);
-    const ip = req.socket.remoteAddress || "unknown";
+    const ip = () => clientIp(req, trustedProxies);
     try {
       if (!hostAllowed(req)) fail("HOST_DENIED", "Hôte non configuré.", 403);
       const u = new URL(req.url, origin()),
@@ -196,8 +198,8 @@ function createApp(options = {}) {
         browserWrite(req);
         const input = await body(req),
           s = p.endsWith("bootstrap")
-            ? await auth.bootstrap(input, ip)
-            : await auth.login(input, ip);
+            ? await auth.bootstrap(input, ip())
+            : await auth.login(input, ip());
         cookie(res, s);
         json(res, { ok: true, csrf: s.csrf });
         return;
@@ -238,7 +240,7 @@ function createApp(options = {}) {
       if (req.method === "POST" && p === "/oauth/register") {
         if (!auth.initialized())
           fail("NOT_READY", "Créez d’abord l’administrateur.", 409);
-        json(res, oauth.register(await body(req), ip), 201);
+        json(res, oauth.register(await body(req), ip()), 201);
         return;
       }
       if (req.method === "GET" && p === "/oauth/authorize") {
@@ -284,12 +286,12 @@ function createApp(options = {}) {
         return;
       }
       if (req.method === "POST" && p === "/oauth/token") {
-        auth.limit("token:" + ip, 30, 60000);
+        auth.limit("token:" + ip(), 30, 60000);
         json(res, oauth.exchange(await body(req, true)));
         return;
       }
       if (req.method === "POST" && p === "/oauth/revoke") {
-        auth.limit("revoke:" + ip);
+        auth.limit("revoke:" + ip());
         const input = await body(req, true);
         if (typeof input.token === "string")
           store.db
