@@ -39,8 +39,8 @@
     },
     {
       "path": "docs/configuration.md",
-      "bytes": 5266,
-      "sha256": "e35d255bd65b4a410f67679003e3bffd424f37fb585b0396e3178f23f581f91d"
+      "bytes": 6385,
+      "sha256": "4cab9842f06a186edf96209784704a68ca2bba6de7442e228b735d336eb1894f"
     },
     {
       "path": "docs/images/dashboard.png",
@@ -164,8 +164,8 @@
     },
     {
       "path": "src/app.cjs",
-      "bytes": 27962,
-      "sha256": "31d36623613b8a1db09db1d9ea19e2fcbb7004955e51a367c8ad453847f4d0a0"
+      "bytes": 28148,
+      "sha256": "7f17db8bbc7919114bcee0b95d100e11c8c4de7e24d5e3af70f3ac8139850fef"
     },
     {
       "path": "src/appearance.cjs",
@@ -181,6 +181,11 @@
       "path": "src/categories.cjs",
       "bytes": 2550,
       "sha256": "fe514a1e68013e06d2872320c67eeedd61928d63e988c256e5331a688ef7e7e0"
+    },
+    {
+      "path": "src/client-ip.cjs",
+      "bytes": 2276,
+      "sha256": "d1077e5b15498518a2358270775391a4bb7ed0e685cfc6a7055badbe0189e9d4"
     },
     {
       "path": "src/github.cjs",
@@ -346,6 +351,11 @@
       "path": "test/providers.test.cjs",
       "bytes": 6644,
       "sha256": "5e6fd8803dcf75cf1cfd08cc9b45d53c6df97613b5f4819c696e28f98fa8f86b"
+    },
+    {
+      "path": "test/proxy-rate-limit.test.cjs",
+      "bytes": 5525,
+      "sha256": "7bd32a5859e82adc52f86a300f1c1023ac7961531eacca27a9b21c256614a192"
     },
     {
       "path": "test/scheduler.test.cjs",
