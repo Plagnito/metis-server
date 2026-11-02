@@ -60,6 +60,10 @@ test("Trusted reverse proxy isolates login and OAuth quotas across real HTTP cli
     return { status: response.status, value: await response.json() };
   };
   const code = fs.readFileSync(path.join(x.app.store.dir, ".bootstrap_token"), "utf8").trim();
+  for (let i = 0; i < 6; i++)
+    assert.equal((await post("/api/bootstrap", {
+      code: "wrong", username: "tester", password: "test-password-long-enough",
+    }, a)).status, i < 5 ? 403 : 429);
   assert.equal((await post("/api/bootstrap", {
     code, username: "tester", password: "test-password-long-enough",
   }, b)).status, 200);
