@@ -76,8 +76,23 @@ proxy or tunnel in front of it and enter the external **HTTPS origin**, without 
 path, as the public address. TLS termination belongs to the proxy/tunnel.
 
 The server checks the Host header against loopback and its configured public host.
-It ignores forwarded identity and IP headers. Configure the immediate proxy to
-preserve the intended Host header. Do not expose the local HTTP port directly.
+It never uses forwarded identity headers for authentication. By default, it also
+ignores forwarded IP headers and applies anonymous rate limits to the TCP peer.
+
+For a remote deployment **behind a reverse proxy**, set
+`METIS_TRUSTED_PROXY_IPS` to the exact IP address(es) of the immediate trusted
+proxy, for example `127.0.0.1` when the proxy connects from local loopback.
+The server then uses the **rightmost untrusted** address in
+`X-Forwarded-For` for the login, bootstrap and OAuth rate limits. The proxy
+MUST append its actual observed peer address or replace the entire header;
+never pass an unverified client-supplied `X-Forwarded-For` unchanged. Example
+for nginx: `proxy_set_header X-Forwarded-For $remote_addr;`. Caddy's default
+`reverse_proxy` handling uses the observed client address for untrusted peers.
+Do not configure a broad LAN or wildcard trust range. Missing, malformed or
+all-trusted forwarded chains are rejected on these authentication endpoints.
+The trusted proxy setting is opt-in; without it, shared proxy IP quotas remain.
+Configure the immediate proxy to preserve the intended Host header. Do not
+expose the local HTTP port directly.
 
 Changing the public origin invalidates Bearer tokens bound to the old MCP audience;
 reconnect the affected clients.
@@ -89,6 +104,7 @@ reconnect the affected clients.
 | `METIS_DATA_DIR` | `./data` relative to the project | Database, keys and first-install token                       |
 | `METIS_HOST`     | `127.0.0.1`                      | Listening interface; the container uses `0.0.0.0` internally |
 | `PORT`           | `4880`                           | Listening port                                               |
+| `METIS_TRUSTED_PROXY_IPS` | unset | Comma-separated exact trusted reverse-proxy IPs for fair auth rate limits |
 
 No GitHub, OpenAI or Anthropic secret is inherited from unrelated environment
 variables. Credentials are entered explicitly and stored encrypted in the instance.
